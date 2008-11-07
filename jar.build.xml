@@ -1,0 +1,34 @@
+<project name="jar" default="jar">
+  <description>
+  Provides the target for building a jar file of this service.
+  </description>
+
+  <import file="build.xml"/>
+  <property name="tmp.dir" location="${basedir}/tmp" />
+  <property name="tmp.lib.dir" location="${basedir}/tmp-lib" />
+ 
+  <target name="jar" depends="compile" 
+    description="Create tickertape.jar">
+    <!-- Define the directories and distribution name -->
+    <mkdir dir="${tmp.dir}" />
+    <copy todir="${tmp.dir}">
+      <fileset dir="${basedir}/build/classes"/>
+    </copy>
+  
+    <!-- Build telemetry.jar --> 
+    <unjar src="${env.HACKYSTAT_SENSORBASE_HOME}/sensorbaseclient.jar" dest="${tmp.dir}"/>
+    <unjar src="${env.HACKYSTAT_DAILYPROJECTDATA_HOME}/dailyprojectdata.lib.jar" dest="${tmp.dir}"/>
+ 
+    <jar destfile="${basedir}/tickertape.jar" basedir="${tmp.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="org.hackystat.tickertape.server.Server"/>
+        <attribute name="Implementation-Title" value="Hackystat Tickertape"/>
+        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii"/>
+      </manifest>
+    </jar>
+    <delete dir="${tmp.dir}" />
+  </target> 
+ 
+</project>
+

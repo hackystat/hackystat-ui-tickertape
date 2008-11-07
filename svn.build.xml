@@ -16,6 +16,7 @@
     <!-- Send Subversion data to Hackystat using the Subversion sensor. -->
     <hacky-svn repositoryName="${svn.repository.name}" 
                repositoryUrl="${svn.repository.url}" 
+               lastIntervalInMinutes="10"
                fileNamePrefix="file://${svn.repository.name}"
                verbose="true" />
   </target>

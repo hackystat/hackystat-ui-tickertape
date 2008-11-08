@@ -6,5 +6,6 @@
 	<classpathentry kind="var" path="HACKYSTAT_SENSORBASE_HOME/sensorbase.jar"/>
 	<classpathentry kind="var" path="JAVAMAIL_HOME/mail.jar"/>
 	<classpathentry kind="var" path="HACKYSTAT_DAILYPROJECTDATA_HOME/dailyprojectdata.jar"/>
+	<classpathentry kind="var" path="TWITTER4J_HOME/twitter4j-1.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

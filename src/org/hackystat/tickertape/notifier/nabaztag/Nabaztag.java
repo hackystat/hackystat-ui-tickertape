@@ -15,9 +15,9 @@ import org.restlet.data.Response;
 public class Nabaztag {
   
   /** The serial number for this device. */
-  private String serialNumber = "0013D3844E5A";
+  private String serialNumber;
   /** The token for this device. */
-  private String token = "1202974551";
+  private String token;
   /** The logger. */
   private Logger logger;
   /** The default Ambient service URL. */

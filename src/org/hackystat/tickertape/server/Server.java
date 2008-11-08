@@ -7,8 +7,9 @@ import java.util.logging.Logger;
 
 import org.hackystat.tickertape.configuration.ConfigurationManager;
 import org.hackystat.tickertape.configuration.jaxb.Project;
-import org.hackystat.tickertape.datasource.sensorbase.HackystatProject;
+import org.hackystat.tickertape.datasource.hackystat.HackystatProject;
 import org.hackystat.tickertape.notifier.nabaztag.Nabaztag;
+import org.hackystat.tickertape.notifier.twitter.Twitter;
 import org.hackystat.utilities.logger.HackystatLogger;
 
 /**
@@ -55,15 +56,25 @@ public class Server extends TimerTask {
       
       // Now, if there's some project info, do our notifications.
       if ((projectInfo != null) && (projectInfo.length() > 1)) {
-        String message = String.format("Latest news for project %s during the past %s minutes. %s", 
-            projectName, interval, projectInfo);
         
         // Only notify Nabaztag if the user has specified Nabaztag as part of this project. 
         if (configProject.getNabaztag() != null) {
+          String message = String.format("Latest news for project %s during the past %s minutes. %s", 
+              projectName, interval, projectInfo.replace("@", "+at+").replace(".", "+dot+"));
           String serialNumber = configProject.getNabaztag().getSerialNumber();
           String token = configProject.getNabaztag().getToken();
           Nabaztag nabaztag = new Nabaztag(serialNumber, token, logger);
           nabaztag.notify(message);
+        }
+        
+        // Only notify Twitter if the user has specified Twitter as part of this project.
+        if (configProject.getTwitter() != null) {
+          String message = String.format("Project %s (last %s mins.) %s", 
+              projectName, interval, projectInfo);
+          String twitterUser = configProject.getTwitter().getUser();
+          String twitterPassword = configProject.getTwitter().getPassword();
+          Twitter twitter = new Twitter (twitterUser, twitterPassword, logger);
+          twitter.notify(message);
         }
       }
     }
@@ -97,6 +108,6 @@ public class Server extends TimerTask {
 
     server.log("Starting up timer-based execution every " + wakeupInterval + " minutes.");
     Timer timer = new Timer();
-    timer.schedule(server, 0, 1000 * 60 * wakeupInterval); 
+    timer.schedule(server, 0, 1000L * 60 * wakeupInterval); 
   }
 }

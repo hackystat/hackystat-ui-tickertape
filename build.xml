@@ -48,6 +48,10 @@
   <available file="${env.HACKYSTAT_SENSORBASE_HOME}/sensorbase.lib.jar" type="file" property="hackystat.sensorbase.available" />
   <fail message="${env.HACKYSTAT_SENSORBASE_HOME}/sensorbase.lib.jar. This package requires the Hackystat SensorBase to be installed and HACKYSTAT_SENSORBASE_HOME defined" unless="hackystat.sensorbase.available" />
 
+  <!-- Make sure that Twitter4J library is available . -->
+   <available file="${env.TWITTER4J_HOME}/twitter4j-1.1.0.jar" type="file" property="twitter4j.available" />
+   <fail message="${env.TWITTER4J_HOME}/twitter4j-1.1.0.jar. This package requires Twitter4J to be installed and TWITTER4J_HOME defined" unless="twitter4j.available" />
+
   <!-- Basic properties for this system. -->
   <property name="system.name" value="hackystat-ui-tickertape" />
   <property name="majorVersionNumber" value="8" />
@@ -78,6 +82,7 @@
     <fileset file="${env.HACKYSTAT_DAILYPROJECTDATA_HOME}/dailyprojectdata.lib.jar" />
     <fileset file="${env.JUNIT_HOME}/junit-${junit.version}.jar" />
     <fileset file="${env.FINDBUGS_HOME}/lib/annotations.jar" />
+    <fileset file="${env.TWITTER4J_HOME}/twitter4j-1.1.0.jar" />
   </path>
 
   <target name="compile" description="Compiles the code.">

@@ -1,0 +1,22 @@
+<Tickertape>
+  <WakeupInterval>10</WakeupInterval>
+  <Project>
+    <Hackystat>
+      <SensorbaseHost>http://dasha.ics.hawaii.edu:9876/sensorbase</SensorbaseHost>
+      <DailyProjectDataHost>http://dasha.ics.hawaii.edu:9877/dailyprojectdata</DailyProjectDataHost>
+      <User>johnson@hawaii.edu</User>
+      <Password>mypassword</Password>
+      <ProjectName>hackystat-ui-tickertape</ProjectName>
+      <ProjectOwner>johnson@hawaii.edu</ProjectOwner>
+    </Hackystat>
+    <Nabaztag>
+      <SerialNumber>0013D3844E5A</SerialNumber>
+      <Token>000000000</Token>
+    </Nabaztag>
+    <Twitter>
+      <User>hacky_ticker</User>
+      <Password>password</Password>
+    </Twitter>
+  </Project>
+</Tickertape>
+

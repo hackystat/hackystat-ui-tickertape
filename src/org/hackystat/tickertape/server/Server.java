@@ -59,7 +59,7 @@ public class Server extends TimerTask {
         
         // Only notify Nabaztag if the user has specified Nabaztag as part of this project. 
         if (configProject.getNabaztag() != null) {
-          String message = String.format("Latest news for project %s during the past %s minutes. %s", 
+          String message = String.format("News for project %s during the past %s minutes. %s", 
               projectName, interval, projectInfo.replace("@", "+at+").replace(".", "+dot+"));
           String serialNumber = configProject.getNabaztag().getSerialNumber();
           String token = configProject.getNabaztag().getToken();

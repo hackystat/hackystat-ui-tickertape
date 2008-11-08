@@ -8,7 +8,10 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 
-/** A notifier for the Nabaztag ambient device. */
+/**
+ * A notifier for the Nabaztag rabbit.
+ * @author Philip Johnson
+ */
 public class Nabaztag {
   
   /** The serial number for this device. */
@@ -40,13 +43,12 @@ public class Nabaztag {
     logger.info("Notifying Nabaztag: " + message);
     String url = String.format("%s?sn=%s&token=%s&tts=%s", host, serialNumber, token, 
         message.trim().replace(" ", "+").replace("@", "+at+"));
-    logger.info("Posting the following URL: " + url);
-    logger.info("Response is: " + post(url));
+    post(url);
   }
   
   /**
    * Performs an HTTP POST of the passed URL.
-   * 
+   * @param url The URL. 
    * @return The response from the server as a string. 
    */
   public String post(String url) {

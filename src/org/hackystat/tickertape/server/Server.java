@@ -1,7 +1,12 @@
 package org.hackystat.tickertape.server;
 
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import org.hackystat.tickertape.configuration.ConfigurationManager;
+import org.hackystat.tickertape.configuration.jaxb.Project;
 import org.hackystat.tickertape.datasource.sensorbase.HackystatProject;
 import org.hackystat.tickertape.notifier.nabaztag.Nabaztag;
 import org.hackystat.utilities.logger.HackystatLogger;
@@ -11,52 +16,87 @@ import org.hackystat.utilities.logger.HackystatLogger;
  * Reads in the tickertape.xml file, sets up the timer-based processes. 
  * @author Philip Johnson
  */
-public class Server {
+public class Server extends TimerTask {
   /** The logger for this service. */
   private Logger logger = HackystatLogger.getLogger("org.hackystat.tickertape", "tickertape");
+  private ConfigurationManager configurationManager;
   
   /**
    * Constructs a new instance of a Tickertape server. 
    * Sends a log message to indicate the server is running. 
+   * @param manager The configuration Manager, which encapsulates the tickertape.xml file. 
    */
-  public Server () {
+  public Server (ConfigurationManager manager) {
     logger.info("Starting up tickertape server");
+    this.configurationManager = manager;
   }
   
   /**
-   * Creates a Nabaztag instance and sends it a message.
-   * @param message The message to send. 
+   * Gather data from Hackystat and send to Nabaztag. 
    */
-  private void notifyNabaztag(String message) {
-    Nabaztag nabaztag = new Nabaztag("0013D3844E5A", "1202974551", logger);
-    nabaztag.notify(message);
+  public void run() {
+    logger.info("Waking up to check projects");
+    int interval = this.configurationManager.getWakeupInterval();
+    for (Project configProject : this.configurationManager.getProjects()) {
+      
+      // First, make a HackystatProject instance from the configuration information.
+      String sensorbase = configProject.getHackystat().getSensorbaseHost();
+      String dpd = configProject.getHackystat().getDailyProjectDataHost();
+      String user = configProject.getHackystat().getUser();
+      String password = configProject.getHackystat().getPassword();
+      String projectName = configProject.getHackystat().getProjectName();
+      String projectOwner = configProject.getHackystat().getProjectOwner();
+      logger.info("Checking info for project: " + projectName);
+      HackystatProject project = 
+        new HackystatProject(sensorbase, dpd, user, password, projectName, projectOwner, interval);
+
+      // Get info about what's happened during the recent interval of time.
+      String projectInfo = project.getInfo();
+      
+      // Now, if there's some project info, do our notifications.
+      if ((projectInfo != null) && (projectInfo.length() > 1)) {
+        String message = String.format("Latest news for project %s during the past %s minutes. %s", 
+            projectName, interval, projectInfo);
+        
+        // Only notify Nabaztag if the user has specified Nabaztag as part of this project. 
+        if (configProject.getNabaztag() != null) {
+          String serialNumber = configProject.getNabaztag().getSerialNumber();
+          String token = configProject.getNabaztag().getToken();
+          Nabaztag nabaztag = new Nabaztag(serialNumber, token, logger);
+          nabaztag.notify(message);
+        }
+      }
+    }
+    logger.info("Finished checking projects for this wakeup interval.");
+  }
+  
+  /**
+   * Logs the passed message. 
+   * @param message The message. 
+   */
+  public void log(String message) {
+    this.logger.info(message);
   }
 
   /**
+   * Starts up this tickertape. 
    * @param args If provided, the location of the tickertape.xml file. 
    */
   public static void main(String[] args) {
     // Create the tickertape server.
-    Server server = new Server();
-    
-    // Now get Hackystat Project Info.
-    String sensorbase = "http://dasha.ics.hawaii.edu:9876/sensorbase";
-    String dpd = "http://dasha.ics.hawaii.edu:9877/dailyprojectdata";
-    String user = "johnson@hawaii.edu";
-    String password = "foobar";
-    String projectName = "Default";
-    String projectOwner = "johnson@hawaii.edu";
-    int interval = 10;
-    HackystatProject project = 
-      new HackystatProject(sensorbase, dpd, user, password, projectName, projectOwner, interval);
-    
-    // Notify the Nabaztag if there is project info. 
-    String projectInfo = project.getInfo();
-    if ((projectInfo != null) && (projectInfo.length() > 0)) {
-      String message = String.format("Latest news for project %s during the past %s minutes. %s", 
-          projectName, interval, projectInfo);
-      server.notifyNabaztag(message);
+    File dotTickerTape = new File(System.getProperty("user.home"), 
+        ".hackystat/tickertape/tickertape.xml");
+    File configFile = (args.length == 0) ? dotTickerTape : new File(args[0]);
+    if (!configFile.exists()) {
+      System.out.printf("%s not found. Exiting.", configFile);
+      return;
     }
-    
+    ConfigurationManager configManager = new ConfigurationManager(configFile);
+    int wakeupInterval = configManager.getWakeupInterval();
+    Server server = new Server(configManager);
+
+    server.log("Starting up timer-based execution every " + wakeupInterval + " minutes.");
+    Timer timer = new Timer();
+    timer.schedule(server, 0, 1000 * 60 * wakeupInterval); 
   }
 }

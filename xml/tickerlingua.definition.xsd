@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="TickerLingua">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Globals" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="HackystatServices" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="HackystatUsers" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="HackystatProjects" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Nabaztags" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="TwitterAccounts" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="FacebookAccounts" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Tickertapes" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Globals">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Mail" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+ <xs:element name="Mail">
+    <xs:complexType>
+      <xs:attribute ref="smtp-server" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <!-- Primitive elements and attributes -->
+  <xs:attribute name="smtp-server" type="xs:string"/>
+  <xs:element name="" type="xs:string"/>
+  <xs:element name="" type="xs:string"/>
+  <xs:element name="" type="xs:string"/>
+  <xs:element name="" type="xs:string"/>
+  <xs:element name="" type="xs:string"/>
+
+  <xs:element name="SensorbaseHost" type="xs:string"/>
+  <xs:element name="DailyProjectDataHost" type="xs:string"/>
+  <xs:element name="WakeupInterval" type="xs:int"/>
+  <xs:element name="User" type="xs:string"/>
+  <xs:element name="Password" type="xs:string"/>
+  <xs:element name="ProjectName" type="xs:string"/>
+  <xs:element name="ProjectOwner" type="xs:string"/>
+  <xs:element name="SerialNumber" type="xs:string"/>
+  <xs:element name="Token" type="xs:string"/>
+  
+  <xs:element name="Twitter">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="User" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Password" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Nabaztag">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SerialNumber" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Token" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Hackystat">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SensorbaseHost" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="DailyProjectDataHost" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="User" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Password" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="ProjectName" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="ProjectOwner" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="Project">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Hackystat" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Nabaztag" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Twitter" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Tickertape">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="WakeupInterval" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="Project" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+
+
+
+
+
+
+
+
+
+
+

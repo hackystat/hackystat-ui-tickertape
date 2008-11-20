@@ -10,102 +10,102 @@
   <HackystatUsers>
     <HackystatUser id="johnson" fullname="Philip Johnson" shortname="Philip">
       <EmailAccount account="johnson@hawaii.edu"/>
-      <SmsAccount number="808-956-3489"
       <HackystatAccount hackystatservice-refid="dasha" user="johnson@hawaii.edu" password="password"/>
-      <TwitterAccount refid="johnson"/>
-      <FacebookAccount refid="johnson"/>
+      <TwitterAccountRef refid="johnson"/>
+      <FacebookAccountRef refid="johnson"/>
+      <SmsAccount number="808-956-3489"/>
     </HackystatUser>
     <HackystatUser id="sz" fullname="Shoaxuan Zhang" shortname="Shoaxuan">
-      <HackystatAccount hackystatservice-refid="dasha" user="sz@hawaii.edu"/>
       <EmailAccount account="sz@hawaii.edu"/>
+      <HackystatAccount hackystatservice-refid="dasha" user="sz@hawaii.edu"/>
     </HackystatUser>
-  </Users>
+  </HackystatUsers>
 
   <HackystatProjects>
-    <HackystatProject id="tickertape" name="hackystat-ui-tickertape" shortname="Tickertape" hackystatservice-refid="dasha" owner-refid="johnson@hawaii.edu" mailing-list="hackystat-dev@googlegroups.com">
-    <HackystatProject id="projectbrowser" name="hackystat-ui-wicket" shortname="PrjBrowser" hackystatservice-refid="dasha" owner-refid="johnson@hawaii.edu" mailing-list="hackystat-dev@googlegroups.com">
+    <HackystatProject id="tickertape" name="hackystat-ui-tickertape" shortname="Tickertape" hackystatservice-refid="dasha" hackystatuser-refid="johnson@hawaii.edu" mailinglist="hackystat-dev@googlegroups.com"/>
+    <HackystatProject id="projectbrowser" name="hackystat-ui-wicket" shortname="PrjBrowser" hackystatservice-refid="dasha" hackystatuser-refid="johnson@hawaii.edu" mailinglist="hackystat-dev@googlegroups.com"/>
   </HackystatProjects>
 
   <Nabaztags>
-    <Nabaztag id="csdl-nabaztag" SerialNumber="0013D3844E5A" Token="00000000"/>
+    <Nabaztag id="csdl-nabaztag" serialnumber="0013D3844E5A" token="00000000"/>
   </Nabaztags>
 
   <TwitterAccounts>
-    <TwitterAccount id="tickertape" user="Prj_Tickertape password="password"/>
+    <TwitterAccount id="tickertape" user="Prj_Tickertape" password="password"/>
     <TwitterAccount id="johnson" user="johnson@hawaii.edu" password="password"/>
-  <TwitterAccounts>
+  </TwitterAccounts>
 
   <FacebookAccounts>
     <FacebookAccount id="johnson" user="philipmjohnson" password="password"/>
     <FacebookAccount id="tickertape" user="Tickertape_Project" password="password"/>
-  <FacebookAccounts>
+  </FacebookAccounts>
 
   <Tickertapes>
-    <Tickertape id="ProjectTweets" intervalHours="0.10" enabled="true">
+    <Tickertape id="ProjectTweets" intervalhours="0.10" enabled="true">
       <Description>
         Generates a tweet regarding changes to specified project during the preceding six minutes, if warranted.
         These tweets are intended for a project-wide micro-blogging account.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <TwitterAccount refid="tickertape"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <TwitterAccountRef refid="tickertape"/>
       <Ticker class="org.hackystat.tickertape.ticker.ProjectTweetsTicker"/>
     </Tickertape>
 
-    <Tickertape id="PersonalTweets" intervalHours="0.25" enabled="true">
+    <Tickertape id="PersonalTweets" intervalhours="0.25" enabled="true">
       <Description>
         Generates a tweet regarding one or more developer's personal activities during the preceding 15 minutes, if warranted.
         These tweets are intended for a developer's personal micro-blogging account.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <HackystatProject refid="projectbrowser"/>
-      <HackystatUser refid="johnson"/>
-      <HackystatUser refid="sz"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="projectbrowser"/>
+      <HackystatUserRef refid="johnson"/>
+      <HackystatUserRef refid="sz"/>
       <Ticker class="org.hackystat.tickertape.ticker.PersonalTweetsTicker"/>
     </Tickertape>
 
-    <Tickertape id="ProjectDailySummary" intervalHours="24" enabled="false" startTime="08:00">
+    <Tickertape id="ProjectDailySummary" intervalhours="24" enabled="false" starttime="08:00">
       <Description>
         Sends a summary email to specified users on project activities during the preceding 24 hours, if any.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <HackystatProject refid="projectbrowser">
-      <HackystatUser refid="johnson"/>
-      <HackystatUser refid="sz"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="projectbrowser"/>
+      <HackystatUserRef refid="johnson"/>
+      <HackystatUserRef refid="sz"/>
       <Ticker class="org.hackystat.tickertape.ticker.SummaryEmailTicker"/>
     </Tickertape>
 
-    <Tickertape id="HourlyNews" intervalHours="1" enabled="true" startTime="08:00">
+    <Tickertape id="HourlyNews" intervalhours="1" enabled="true" starttime="08:00">
       <Description>
-        Sends an hourly "news bulletin" regarding activities on the specified project(s) to Nabaztag, if any occurred.
+        Sends an hourly news bulletin regarding activities on the specified project(s) to Nabaztag, if any occurred.
         This news bulletin will be read aloud by the rabbit using its text-to-speech mechanism.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <HackystatProject refid="projectbrowser">
-      <Nabaztag refid="csdl-nabaztag"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="projectbrowser"/>
+      <NabaztagRef refid="csdl-nabaztag"/>
       <Ticker class="org.hackystat.tickertape.ticker.NabaztagNewsTicker"/>
     </Tickertape>
 
-    <Tickertape id="ProjectFacebookWall" intervalHours="4" enabled="true">
+    <Tickertape id="ProjectFacebookWall" intervalhours="4" enabled="true">
       <Description>
         Generates a posting to a project's Facebook wall regarding activities during the preceding 4 hours, if warranted.
         This posting is intended for a project-wide Facebook account.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <FacebookAccount refid="tickertape"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <FacebookAccountRef refid="tickertape"/>
       <Ticker class="org.hackystat.tickertape.ticker.ProjectTweetsTicker"/>
     </Tickertape>
 
-    <Tickertape id="PortfolioTransition" intervalHours="24" enabled="true">
+    <Tickertape id="PortfolioTransition" intervalhours="24" enabled="true">
       <Description>
         Generates a posting to the project(s) discussion list when any portfolio "colors" have changed since the preceding day.
         Similar to an email, but intended for the project discussion list.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <HackystatProject refid="projectbrowser"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="projectbrowser"/>
       <Ticker class="org.hackystat.tickertape.ticker.PortfolioTransitionTicker"/>
     </Tickertape>
 
-    <Tickertape id="TweetWhenInteresting" intervalHours="0.05" enabled="true">
+    <Tickertape id="TweetWhenInteresting" intervalhours="0.05" enabled="true">
       <Description>
         Wakes up every three minutes to see if something sufficiently "interesting" to tweet has occurred. 
         Note that "interestingness" is a function of the intrinsic interest of the occurrence as well as 
@@ -114,12 +114,12 @@
         hour, then a relatively uninteresting event (such as the fact that the developer is working) might warrant a tweet. 
         Generally intended for one's personal micro-blogging account.
       </Description>
-      <HackystatProject refid="tickertape"/>
-      <HackystatProject refid="projectbrowser"/>
-      <HackystatUser refid="johnson"/>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="projectbrowser"/>
+      <HackystatUserRef refid="johnson"/>
       <Ticker class="org.hackystat.tickertape.ticker.TweetWhenInterestingTicker"/>
     </Tickertape>
 
-  <Tickertapes>
+  </Tickertapes>
 </TickerLingua>
 

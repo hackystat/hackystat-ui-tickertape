@@ -8,6 +8,7 @@
 
   <target name="validateXml" description="Validates XML files against their schemas.">
     <schemavalidate noNamespaceFile="${xml.dir}/tickertape.definition.xsd"   file="${xml.dir}/tickertape.example.xml"/>
+    <schemavalidate noNamespaceFile="${xml.dir}/tickerlingua.definition.xsd"   file="${xml.dir}/tickerlingua.example.xml"/>
   </target>
 </project>
 

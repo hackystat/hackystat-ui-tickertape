@@ -20,9 +20,9 @@
 
   <target name="jaxb" description="Runs the XJC compiler.">
     <echo message="Compiling using ${env.JAXB_HOME} for target version ${env.JAXB_TARGET}."/>
-    <xjc target="${env.JAXB_TARGET}" extension="true" schema="${basedir}/xml/tickertape.definition.xsd" destdir="src" 
-         package="org.hackystat.tickertape.configuration.jaxb">
-      <produces dir="${src.dir}/org/hackystat/tickertape/configuration/jaxb" includes="*" />
+    <xjc target="${env.JAXB_TARGET}" extension="true" schema="${basedir}/xml/tickerlingua.definition.xsd" destdir="src" 
+         package="org.hackystat.tickertape.tickerlingua.jaxb">
+      <produces dir="${src.dir}/org/hackystat/tickertape/tickerlingua/jaxb" includes="*" />
     </xjc>
   </target>
 </project>

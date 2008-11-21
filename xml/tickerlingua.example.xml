@@ -22,8 +22,8 @@
   </HackystatUsers>
 
   <HackystatProjects>
-    <HackystatProject id="tickertape" name="hackystat-ui-tickertape" shortname="Tickertape" hackystatservice-refid="dasha" hackystatuser-refid="johnson@hawaii.edu" mailinglist="hackystat-dev@googlegroups.com"/>
-    <HackystatProject id="projectbrowser" name="hackystat-ui-wicket" shortname="PrjBrowser" hackystatservice-refid="dasha" hackystatuser-refid="johnson@hawaii.edu" mailinglist="hackystat-dev@googlegroups.com"/>
+    <HackystatProject id="tickertape" name="hackystat-ui-tickertape" shortname="Tickertape" hackystatservice-refid="dasha" hackystatuser-refid="johnson" mailinglist="hackystat-dev@googlegroups.com"/>
+    <HackystatProject id="projectbrowser" name="hackystat-ui-wicket" shortname="PrjBrowser" hackystatservice-refid="dasha" hackystatuser-refid="johnson" mailinglist="hackystat-dev@googlegroups.com"/>
   </HackystatProjects>
 
   <Nabaztags>

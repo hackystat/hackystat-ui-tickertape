@@ -1,5 +1,10 @@
 package org.hackystat.tickertape.tickerlingua;
 
+/**
+ * The exception class for all TickerLingua definition errors. 
+ * @author Philip Johnson
+ *
+ */
 public class TickerLinguaException extends Exception {
 
   /** Serial version id. */

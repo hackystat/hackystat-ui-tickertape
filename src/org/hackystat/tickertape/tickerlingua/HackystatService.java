@@ -29,6 +29,15 @@ public class HackystatService {
    this.projectbrowser = projectbrowser;
   }
   
+  /**
+   * Constructs the instance from the passed JAXB service instance. 
+   * @param service The JAXB service instance. 
+   */
+  public HackystatService(org.hackystat.tickertape.tickerlingua.jaxb.HackystatService service) {
+    this(service.getId(), service.getSensorbase(), service.getDailyprojectdata(),  
+        service.getTelemetry(), service.getProjectbrowser());
+  }
+  
   /** @return The unique id. */
   public String getId() {
     return this.id;

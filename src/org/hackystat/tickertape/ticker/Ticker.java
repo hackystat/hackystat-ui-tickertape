@@ -1,5 +1,10 @@
 package org.hackystat.tickertape.ticker;
 
-public abstract class Ticker {
+/**
+ * The interface that all Tickers must implement.
+ * @author Philip Johnson
+ *
+ */
+public interface Ticker {
 
 }

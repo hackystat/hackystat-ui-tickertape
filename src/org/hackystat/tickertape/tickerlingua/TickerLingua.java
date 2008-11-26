@@ -3,6 +3,7 @@ package org.hackystat.tickertape.tickerlingua;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +160,9 @@ public class TickerLingua {
    * @throws TickerLinguaException If a duplicate ID is found.
    */
   private void processFacebookAccounts() throws TickerLinguaException {
+    if (this.jaxbTickerLingua.getFacebookAccounts() == null) {
+      return;
+    }
     for (org.hackystat.tickertape.tickerlingua.jaxb.FacebookAccount jaxb :
       this.jaxbTickerLingua.getFacebookAccounts().getFacebookAccount()) {
       String id = jaxb.getId();
@@ -213,7 +217,8 @@ public class TickerLingua {
       if (!SensorBaseClient.isHost(sensorbase)) {
         this.logger.warning("Warning: Sensorbase not found: " + sensorbase);
       }
-      if (!SensorBaseClient.isRegistered(sensorbase, hackystatUser, hackystatPassword)) {
+      if ((hackystatPassword != null) && 
+          (!SensorBaseClient.isRegistered(sensorbase, hackystatUser, hackystatPassword))) {
         this.logger.warning("Warning: Hackystat credentials not OK: " + hackystatUser);
       }
       
@@ -247,9 +252,14 @@ public class TickerLingua {
       if (jaxb.getSmsAccount() != null) {
         smsNumber = jaxb.getSmsAccount().getNumber();
       }
+      
+      String emailAccount = null;
+      if (jaxb.getEmailAccount() != null) {
+        emailAccount = jaxb.getEmailAccount().getAccount();
+      }
       // References are resolved, everything is OK, so define this user. 
       HackystatUser user = new HackystatUser(id, jaxb.getFullname(), jaxb.getShortname(), 
-          jaxb.getEmailAccount().getAccount(), service, jaxb.getHackystatAccount().getUser(),
+          emailAccount, service, jaxb.getHackystatAccount().getUser(),
           jaxb.getHackystatAccount().getPassword(), twitterAccount, facebookAccount, 
           smsNumber);
       // If that was successful, then add it to the users list. 
@@ -275,15 +285,23 @@ public class TickerLingua {
       if (service == null) {
         throw new TickerLinguaException("Invalid HackystatService-refid: " + serviceId);
       }
-      String userId = jaxb.getHackystatuserRefid();
-      HackystatUser user = this.users.get(userId);
-      if (user == null) {
-        throw new TickerLinguaException("Invalid HackystatUser-refid: " + userId);
+      String ownerId = jaxb.getProjectownerRefid();
+      HackystatUser owner = this.users.get(ownerId);
+      if (owner == null) {
+        throw new TickerLinguaException("Invalid ProjectOwner-refid: " + ownerId);
+      }
+      String authUserId = jaxb.getAuthuserRefid();
+      HackystatUser authUser = this.users.get(authUserId);
+      if (authUser == null) {
+        throw new TickerLinguaException("Invalid AuthUser-refid: " + authUserId);
+      }
+      if (!authUser.hasPassword()) {
+        throw new TickerLinguaException("AuthUser must have a password: " + authUserId);
       }
       
       // Should be OK, so create it.
       HackystatProject project = new HackystatProject(id, jaxb.getName(), jaxb.getShortname(),
-          service, user, jaxb.getMailinglist());
+          service, owner, authUser, jaxb.getMailinglist());
       this.projects.put(id, project);
     }
   }
@@ -431,6 +449,14 @@ public class TickerLingua {
     List<Tickertape> tickertapeList = new ArrayList<Tickertape>();
     tickertapeList.addAll(this.tickertapes.values());
     return tickertapeList;
+  }
+  
+  /**
+   * Returns the set of defined HackystatUsers. 
+   * @return The hackystat user definitions. 
+   */
+  public Collection<HackystatUser> getHackystatUsers() {
+    return this.users.values();
   }
   
 }

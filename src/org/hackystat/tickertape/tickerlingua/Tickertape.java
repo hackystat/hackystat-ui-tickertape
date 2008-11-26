@@ -17,7 +17,7 @@ public class Tickertape {
   private String description;
   private List<HackystatProject> projects;
   private List<NotificationService> services;
-  private Class<? extends Ticker> tickerClass; 
+  private Ticker ticker;
   
   /**
    * Creates and returns a new Tickertape instance, or throws a TickerLinguaException if the 
@@ -45,7 +45,13 @@ public class Tickertape {
       throw new TickerLinguaException("At least one project must be defined.");
     }
     this.services = services;
-    this.tickerClass = tickerClass;
+    try {
+      Constructor<? extends Ticker> ctor = tickerClass.getConstructor();
+      this.ticker = ctor.newInstance();
+    }
+    catch (Exception e) {
+      throw new RuntimeException("Ticker could not be instantiated. Shouldn't ever happen!", e);
+    }
   }
   
   /**
@@ -109,13 +115,7 @@ public class Tickertape {
    * @return The notification class. 
    */
   public Ticker getTicker() {
-    try {
-      Constructor<? extends Ticker> ctor = tickerClass.getConstructor();
-      return ctor.newInstance();
-    }
-    catch (Exception e) {
-      throw new RuntimeException("Ticker could not be instantiated. Shouldn't ever happen!", e);
-    }
+    return this.ticker;
     
   }
 }

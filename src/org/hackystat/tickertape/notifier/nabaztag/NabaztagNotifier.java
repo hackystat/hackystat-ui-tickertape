@@ -12,7 +12,7 @@ import org.restlet.data.Response;
  * A notifier for the Nabaztag rabbit.
  * @author Philip Johnson
  */
-public class Nabaztag {
+public class NabaztagNotifier {
   
   /** The serial number for this device. */
   private String serialNumber;
@@ -29,7 +29,7 @@ public class Nabaztag {
    * @param token The token for this device. 
    * @param logger The logger for status messages. 
    */
-  public Nabaztag(String serialNumber, String token, Logger logger) {
+  public NabaztagNotifier(String serialNumber, String token, Logger logger) {
     this.serialNumber = serialNumber;
     this.token = token;
     this.logger = logger;

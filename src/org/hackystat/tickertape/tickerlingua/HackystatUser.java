@@ -60,11 +60,27 @@ public class HackystatUser {
   }
   
   /**
+   * Returns the Hackystat user account for this user.  
+   * @return The hackystat user account. 
+   */
+  public String getHackystatUserAccount() {
+    return this.hackystatUserEmail;
+  }
+  
+  /**
    * The full name for this user. 
    * @return The full name. 
    */
   public String getFullName() {
     return this.fullname;
+  }
+  
+  /**
+   * Returns true if this user has a password specified for them. 
+   * @return True if they have a password. 
+   */
+  public boolean hasPassword() {
+    return (this.hackystatPassword != null);
   }
   
   /**
@@ -108,27 +124,39 @@ public class HackystatUser {
   
   /**
    * Creates a new SensorBaseClient for this user. 
+   * Throws a RuntimeException if this user did not have a password provided in tickertape.xml.
    * @return A sensorbaseclient instance.
    */
   public SensorBaseClient getSensorBaseClient() {
+    if (this.hackystatPassword == null) {
+      throw new RuntimeException("Cannot have client since no password for " + hackystatUserEmail);
+    }
     return new SensorBaseClient(this.hackystatService.getSensorbase(), this.hackystatUserEmail, 
         this.hackystatPassword);
   }
   
   /**
    * Creates a new DailyProjectDataClient for this user. 
+   * Throws a RuntimeException if this user did not have a password provided in tickertape.xml.
    * @return A DPD client instance.
    */
   public DailyProjectDataClient getDailyProjectDataClient() {
+    if (this.hackystatPassword == null) {
+      throw new RuntimeException("Cannot have client since no password for " + hackystatUserEmail);
+    }
     return new DailyProjectDataClient(this.hackystatService.getDailyProjectData(),
         this.hackystatUserEmail, this.hackystatPassword);
   }
 
   /**
    * Creates a new TelemetryClient for this user. 
+   * Throws a RuntimeException if this user did not have a password provided in tickertape.xml.
    * @return A telemetryclient instance.
    */
   public TelemetryClient getTelemetryClient() {
+    if (this.hackystatPassword == null) {
+      throw new RuntimeException("Cannot have client since no password for " + hackystatUserEmail);
+    }
     return new TelemetryClient(this.hackystatService.getTelemetry(),
         this.hackystatUserEmail, this.hackystatPassword);
   }

@@ -117,7 +117,8 @@
       <xs:attribute ref="name" use="required"/>
       <xs:attribute ref="shortname" use="required"/>
       <xs:attribute ref="hackystatservice-refid" use="required"/>
-      <xs:attribute ref="hackystatuser-refid" use="required"/>
+      <xs:attribute ref="projectowner-refid" use="required"/>
+      <xs:attribute ref="authuser-refid" use="required"/>
       <xs:attribute ref="mailinglist" use="required"/>
     </xs:complexType>
   </xs:element>
@@ -239,7 +240,8 @@
   <xs:attribute name="password" type="xs:string"/>
   <xs:attribute name="refid" type="xs:string"/>
   <xs:attribute name="name" type="xs:string"/>
-  <xs:attribute name="hackystatuser-refid" type="xs:string"/>
+  <xs:attribute name="projectowner-refid" type="xs:string"/>
+  <xs:attribute name="authuser-refid" type="xs:string"/>
   <xs:attribute name="mailinglist" type="xs:string"/>
   <xs:attribute name="serialnumber" type="xs:string"/>
   <xs:attribute name="token" type="xs:string"/>

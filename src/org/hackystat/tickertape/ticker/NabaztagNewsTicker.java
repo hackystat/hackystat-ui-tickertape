@@ -17,7 +17,6 @@ public class NabaztagNewsTicker implements Ticker {
    * @param tickerLingua The TickerLingua instance with global data info.
    * @param logger The logger to be used to communicate status. 
    */
-  @Override
   public void run(Tickertape tickertape, TickerLingua tickerLingua, Logger logger) {
     logger.info("Running NabaztagNewsTicker");
   }

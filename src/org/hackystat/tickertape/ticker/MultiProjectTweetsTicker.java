@@ -1,22 +1,18 @@
 package org.hackystat.tickertape.ticker;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.hackystat.sensorbase.client.SensorBaseClient;
-import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataIndex;
-import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataRef;
 import org.hackystat.tickertape.notifier.twitter.TwitterNotifier;
 import org.hackystat.tickertape.tickerlingua.HackystatUser;
 import org.hackystat.tickertape.tickerlingua.NotificationService;
 import org.hackystat.tickertape.tickerlingua.TickerLingua;
 import org.hackystat.tickertape.tickerlingua.Tickertape;
 import org.hackystat.tickertape.tickerlingua.HackystatProject;
-import org.hackystat.utilities.tstamp.Tstamp;
+import org.hackystat.tickertape.ticker.data.ProjectSensorDataLog;
 
 /**
  * A Ticker. 
@@ -28,6 +24,8 @@ public class MultiProjectTweetsTicker implements Ticker {
   private Tickertape tickertape;
   private Logger logger;
   private TickerLingua tickerLingua;
+  private Map<String, ProjectSensorDataLog> project2log = 
+    new HashMap<String, ProjectSensorDataLog>();
 
 
   /**
@@ -36,7 +34,6 @@ public class MultiProjectTweetsTicker implements Ticker {
    * @param tickerLingua The TickerLingua instance with global data info.
    * @param logger The logger to be used to communicate status. 
    */
-  @Override
   public void run(Tickertape tickertape, TickerLingua tickerLingua, Logger logger) {
     logger.info("Running MultiProjectTweetsTicker");
     // Always do this every time. 
@@ -45,38 +42,28 @@ public class MultiProjectTweetsTicker implements Ticker {
     this.tickerLingua = tickerLingua;
     notify(null);  // Force a tweet the first time we run this Ticker. 
     
-    // We will send one tweet per project.
+    // Process each project.
     for (HackystatProject project : tickertape.getHackystatProjects()) {
       this.logger.info("Checking status of project " + project.getName());
+      
+      // Find or create the ProjectSensorDataLog.
+      String projectName = project.getName();
+      String projectOwner = project.getHackystatOwner().getHackystatUserAccount();
       HackystatUser authUser = project.getHackystatAuthUser();
-      HackystatUser owner = project.getHackystatOwner();
       SensorBaseClient client = authUser.getSensorBaseClient();
-      XMLGregorianCalendar endTime = Tstamp.makeTimestamp();
-      int interval = (int) (tickertape.getIntervalHours() * 60 * 60);
-      XMLGregorianCalendar startTime = Tstamp.incrementSeconds(endTime, (interval * -1));
-      SensorDataIndex index = null;
-      try {
-        index = client.getProjectSensorData(owner.getHackystatUserAccount(),
-            project.getName(), startTime, endTime);
-      }
-      catch (Exception e) {
-        this.logger.warning("Project Sensor Data request failed: " + e.getMessage());
-      }
-      // If there is some sensor data.
-      if ((index != null) && (!index.getSensorDataRef().isEmpty())) {
-        Set<String> users = new HashSet<String>();
-        for (SensorDataRef ref : index.getSensorDataRef()) {
-          users.add(ref.getOwner());
+      double maxLife = this.tickertape.getIntervalHours();
+      ProjectSensorDataLog log = this.getProjectSensorDataLog(client, maxLife, projectOwner, 
+          projectName, logger);
+      
+      // Now get any new data.
+      log.update();
+          
+      for (String user : log.getProjectParticipants()) {
+        if (log.hasRecentSensorData(user) && !log.hasRecentTweet(user)) {
+          String shortName = this.getShortName(user);
+          // generate notification message.
+          // send tweet
         }
-        StringBuffer buff = new StringBuffer(23);
-        buff.append("For project ").append(project.getShortName()).append(", ");
-        for (String email : users) {
-          buff.append(getShortName(email)).append(", ");
-        }
-        // get rid of the last two characters (the ', ')
-        buff.delete(buff.length() - 2, buff.length());
-        buff.append(" are currently working.");
-        notify(buff.toString());
       }
     }
   }
@@ -94,6 +81,26 @@ public class MultiProjectTweetsTicker implements Ticker {
       }
     }
     return email;
+  }
+  
+  /**
+   * Return the ProjectSensorDataLog for this project, creating it if it does not yet exist. 
+   * @param client The SensorBaseClient.
+   * @param maxLife The maxLife for sensor data entries in this log.
+   * @param projectOwner The owner.
+   * @param projectName The name.
+   * @param logger The logger to be used if things go wrong. 
+   * @return The ProjectSensorDataLog.
+   */
+  private ProjectSensorDataLog getProjectSensorDataLog(SensorBaseClient client, double maxLife,
+      String projectOwner, String projectName, Logger logger) {
+    // If we can't find it, create it.
+    if (!this.project2log.containsKey(projectName)) {
+      ProjectSensorDataLog log = new ProjectSensorDataLog(client, maxLife, projectOwner,
+          projectName, logger);
+      this.project2log.put(projectName, log);
+    }
+    return this.project2log.get(projectName);    
   }
   
 

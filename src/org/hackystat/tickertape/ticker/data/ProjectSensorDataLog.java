@@ -1,15 +1,18 @@
 package org.hackystat.tickertape.ticker.data;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.logging.Logger;
 
 import org.hackystat.sensorbase.client.SensorBaseClient;
 import org.hackystat.sensorbase.resource.projects.jaxb.Project;
 import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataRef;
+import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorData;
 import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataIndex;
 import org.hackystat.utilities.tstamp.Tstamp;
 
@@ -21,10 +24,10 @@ import org.hackystat.utilities.tstamp.Tstamp;
 public class ProjectSensorDataLog {
   
   /** Maps the time when data was retrieved the list of data of interest. */
-  Map<XMLGregorianCalendar, List<SensorDataRef>> timestamp2SensorDatas = 
-    new TreeMap<XMLGregorianCalendar, List<SensorDataRef>>();
+  Map<XMLGregorianCalendar, List<SensorData>> timestamp2SensorDatas = 
+    new HashMap<XMLGregorianCalendar, List<SensorData>>();
   Map<XMLGregorianCalendar, Project> timestamp2Project =
-    new TreeMap<XMLGregorianCalendar, Project>();
+    new HashMap<XMLGregorianCalendar, Project>();
   
   private SensorBaseClient client = null;
   private long maxLifeInMillis;
@@ -33,10 +36,10 @@ public class ProjectSensorDataLog {
   private String projectName;
   private Logger logger;
 
-  private List<SensorDataRef> emptyDataList;
+  private List<SensorData> emptyDataList;
 
   private Map<String, XMLGregorianCalendar> user2lastTweet =
-    new TreeMap<String, XMLGregorianCalendar>();
+    new HashMap<String, XMLGregorianCalendar>();
 
   /**
    * Creates a new ProjectSensorDataLog that maintains a sliding window of data.
@@ -53,7 +56,7 @@ public class ProjectSensorDataLog {
     this.projectOwner = projectOwner;
     this.projectName = projectName;
     this.logger = logger;
-    this.emptyDataList = new ArrayList<SensorDataRef>();
+    this.emptyDataList = new ArrayList<SensorData>();
   }
   
   /**
@@ -92,7 +95,17 @@ public class ProjectSensorDataLog {
       this.timestamp2SensorDatas.put(currTime, this.emptyDataList);
     }
     else {
-      this.timestamp2SensorDatas.put(currTime, index.getSensorDataRef());
+      List<SensorData> sensordata = new ArrayList<SensorData>();
+      for (SensorDataRef ref : index.getSensorDataRef()) {
+        try {
+          SensorData data = this.client.getSensorData(ref);
+          sensordata.add(data);
+        }
+        catch (Exception e) {
+          this.logger.warning("Failed to retrieve sensor data: " + e.getMessage());
+        }
+      }
+      this.timestamp2SensorDatas.put(currTime, sensordata);
     }
     
     // Update the project data structure with the current project definition.
@@ -103,6 +116,15 @@ public class ProjectSensorDataLog {
     }
     catch (Exception e) {
       this.logger.warning("Project definition request failed: " + e.getMessage()); 
+    }
+    
+    // Remove any entries that are older than maxLife
+    XMLGregorianCalendar maxLifeTimestamp = this.getMaxLifeTimestamp();
+    for (XMLGregorianCalendar tstamp : this.timestamp2SensorDatas.keySet()) {
+      if (Tstamp.lessThan(tstamp, maxLifeTimestamp)) {
+        this.timestamp2SensorDatas.remove(tstamp);
+        this.timestamp2Project.remove(tstamp);
+      }
     }
   }
   
@@ -136,35 +158,33 @@ public class ProjectSensorDataLog {
   }
   
   /**
-   * Indicate that a tweet has been generated at least once based upon data received within 
+   * Indicate if a tweet has been generated at least once based upon data received within 
    * the maxLife interval for the specified user. 
    * @param user The user of interest.
    * @return True if a tweet has been generated recently.
    */
   public boolean hasRecentTweet(String user) {
-    if (!this.user2lastTweet.containsKey(user)) {
-      return false;
-    }
-    else {
-      // Return true if lastTweet is greater than or equal to the maxLifeTimestamp.
+    if (this.user2lastTweet.containsKey(user)) {
       return !Tstamp.lessThan(this.getMaxLifeTimestamp(), this.user2lastTweet.get(user));
     }
+    return false;
   }
   
   /**
    * Returns the (potentially empty) list of sensordatarefs received during the last update 
    * for the specified user. 
+   * @param user The user.
    * @return The list of sensordatarefs, possibly empty.
    */
-  public List<SensorDataRef> getRecentSensorDataRefs(String user) {
+  public List<SensorData> getRecentSensorData(String user) {
     if (this.timestamp2SensorDatas.containsKey(this.lastUpdate)) {
-      List<SensorDataRef> refs = new ArrayList<SensorDataRef>();
-      for (SensorDataRef ref : this.timestamp2SensorDatas.get(this.lastUpdate)) {
-        if (ref.getOwner().equals(user)) {
-          refs.add(ref);
+      List<SensorData> datas = new ArrayList<SensorData>();
+      for (SensorData data : this.timestamp2SensorDatas.get(this.lastUpdate)) {
+        if (data.getOwner().equals(user)) {
+          datas.add(data);
         }
       }
-      return refs;
+      return datas;
     }
     else {
       // Should never happen, but just in case. 
@@ -175,16 +195,131 @@ public class ProjectSensorDataLog {
   
   /**
    * Returns true if this user has data from the last update. 
+   * @param user The user.
    * @return True if there is sensor data for this user.
    */
   public boolean hasRecentSensorData(String user) {
     if (this.timestamp2SensorDatas.containsKey(this.lastUpdate)) {
-      for (SensorDataRef ref : this.timestamp2SensorDatas.get(this.lastUpdate)) {
-        if (ref.getOwner().equals(user)) {
+      for (SensorData data : this.timestamp2SensorDatas.get(this.lastUpdate)) {
+        if (data.getOwner().equals(user)) {
           return true;
         }
       }
     }
     return false;
+  }
+
+  /**
+   * Returns a list of all SensorData in our sliding window of data that was generated by the 
+   * given user and is of the given SensorDataType. 
+   * @param user The user of interest. 
+   * @param sdt The sensor data type of interest.
+   * @return A list of matching SensorData.
+   */
+  public List<SensorData> getSensorData(String user, String sdt) {
+    List<SensorData> datas = new ArrayList<SensorData>();
+    for (Map.Entry<XMLGregorianCalendar, List<SensorData>> entry : 
+      this.timestamp2SensorDatas.entrySet()) {
+      for (SensorData data : entry.getValue()) {
+        if ((user.equals(data.getOwner())) &&
+            (sdt.equals(data.getSensorDataType()))) {
+          datas.add(data);
+        }
+      }
+    }
+    return datas;
+  }
+
+  /**
+   * Returns true if there is at least one SensorDataRef in our sliding window of data that 
+   * was generated by the given user and is of the given SensorDataType.
+   * @param user The user of interest. 
+   * @param sdt The sensor data type of interest.
+   * @return True if data of the specified type is present. 
+   */
+  public boolean hasSensorData(String user, String sdt) {
+    for (Map.Entry<XMLGregorianCalendar, List<SensorData>> entry : 
+      this.timestamp2SensorDatas.entrySet()) {
+      for (SensorData data : entry.getValue()) {
+        if ((user.equals(data.getOwner())) &&
+            (sdt.equals(data.getSensorDataType()))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+
+  /**
+   * Returns a count of the number of files for which DevEvent sensor data has been generated
+   * in the current sliding window of data.
+   * Requires one HTTP call per DevEvent. 
+   * @param user The user of interest. 
+   * @return The number of files associated with DevEvents during this interval.
+   */
+  public int getNumFilesWorkedOn(String user) {
+    List<SensorData> datas = getSensorData(user, "DevEvent");
+    Set<String> files = new HashSet<String>();
+    if (!datas.isEmpty()) {
+      try {
+        for (SensorData data : datas) {
+          files.add(data.getResource());
+        }
+      }
+      catch (Exception e) {
+        this.logger.warning("Error occurred retrieving sensor data: " + e.getMessage());
+      }
+    }
+    return files.size();
+  }
+  
+  /**
+   * Returns the file that the user worked on the most during the sliding window of data. 
+   * Requires one HTTP call per DevEvent. 
+   * @param user The user.
+   * @return The file they worked on most, or null if no DevEvent data. 
+   */
+  public String mostWorkedOnFile(String user) {
+    List<SensorData> datas = getSensorData(user, "DevEvent");
+    Map<String, Integer> file2NumOccurrences = new HashMap<String, Integer>();
+    if (datas.isEmpty()) {
+      return null;
+    }
+    try {
+      for (SensorData data : datas) {
+        String file = data.getResource();
+        if (!file2NumOccurrences.containsKey(file)) {
+          file2NumOccurrences.put(file, 0);
+        }
+        int currOccurrences = file2NumOccurrences.get(file);
+        file2NumOccurrences.put(file, currOccurrences++);
+      }
+    }
+    catch (Exception e) {
+      this.logger.warning("Error occurred retrieving sensor data: " + e.getMessage());
+    }
+    // Now find the one that occurred most frequently. 
+    int mostOccurred = 0;
+    String mostOccurredFile = null;
+    for (Map.Entry<String, Integer> entry : file2NumOccurrences.entrySet()) {
+      if (entry.getValue() > mostOccurred) {
+        mostOccurred = entry.getValue();
+        mostOccurredFile = entry.getKey();
+      }
+    }
+    // Now return the mostOccurredFile's file name.
+    return getFileName(mostOccurredFile);
+  }
+
+
+  /**
+   * Returns the file name associated with filePath.
+   * @param filePath The file path. 
+   * @return The file name. 
+   */
+  private String getFileName(String filePath) {
+    int sepPos = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+    return filePath.substring(sepPos);
   }
 }

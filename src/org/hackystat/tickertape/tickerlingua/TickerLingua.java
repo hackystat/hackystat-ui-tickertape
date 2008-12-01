@@ -145,6 +145,9 @@ public class TickerLingua {
    * @throws TickerLinguaException If a duplicate ID is found.
    */
   private void processNabaztags() throws TickerLinguaException {
+    if (this.jaxbTickerLingua.getNabaztags() == null) {
+      return;
+    }
     for (org.hackystat.tickertape.tickerlingua.jaxb.Nabaztag jaxb :
       this.jaxbTickerLingua.getNabaztags().getNabaztag()) {
       String id = jaxb.getId();

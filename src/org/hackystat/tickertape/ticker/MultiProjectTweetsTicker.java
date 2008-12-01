@@ -60,9 +60,14 @@ public class MultiProjectTweetsTicker implements Ticker {
           
       for (String user : log.getProjectParticipants()) {
         if (log.hasRecentSensorData(user) && !log.hasRecentTweet(user)) {
-          String shortName = this.getShortName(user);
-          // generate notification message.
-          // send tweet
+          String mostWorkedFile = log.mostWorkedOnFile(user);
+          if (mostWorkedFile != null) {
+            String msg = 
+              String.format("%s is working on %s files, including %s, in project %s.",
+                  this.getShortName(user), log.getNumFilesWorkedOn(user),
+                  mostWorkedFile, project.getShortName());
+            notify(msg);
+          }
         }
       }
     }

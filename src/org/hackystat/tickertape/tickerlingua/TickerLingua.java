@@ -68,6 +68,9 @@ public class TickerLingua {
 
   private Logger logger = HackystatLogger.getLogger("TickerLinguaLogger", "tickertape", true);
   
+  private String smtpServer = null;
+  private String loggingLevel = "INFO";
+  
   /**
    * Creates a TickerLingua instance from default location ~/.hackystat/tickertape/tickertape.xml.
    * @throws TickerLinguaException If problems occur while getting or processing the file. 
@@ -111,6 +114,8 @@ public class TickerLingua {
     processHackystatUsers();
     processHackystatProjects();
     processTickertapes();
+    processGlobals();
+    
   }
   
   
@@ -139,6 +144,44 @@ public class TickerLingua {
       this.services.put(id, new HackystatService(jaxb));
     }
   }
+  
+  /**
+   * Processes the Globals section of the Tickertape definition.
+   */
+  private void processGlobals() {
+    try {
+      if (this.jaxbTickerLingua.getGlobals() == null) {
+        return;
+      }
+      if (this.jaxbTickerLingua.getGlobals().getMail() != null) {
+        this.smtpServer = this.jaxbTickerLingua.getGlobals().getMail().getSmtpServer();
+      }
+      if (this.jaxbTickerLingua.getGlobals().getLoggingLevel() != null) {
+        this.loggingLevel = this.jaxbTickerLingua.getGlobals().getLoggingLevel().getLevel();
+      }
+    }
+    catch (Exception e) {
+      this.logger.warning("Errors processing Globals section: " + e.getMessage());
+    }
+  }
+  
+  /**
+   * Returns the smtp server specified in the Globals section, or null if none specified.
+   * @return The smtp server, or null.
+   */
+  public String getSmtpServer() {
+    return this.smtpServer;
+  }
+
+
+  /**
+   * Returns the logging level specified in the globals section, or "INFO" if none specified.
+   * @return The logging level, or "INFO" if not specified.
+   */
+  public String getLoggingLevel () {
+    return this.loggingLevel;
+  }
+  
   
   /**
    * Defines Nabaztag instances from the JAXB.

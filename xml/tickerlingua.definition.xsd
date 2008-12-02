@@ -20,6 +20,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="Mail" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="LoggingLevel" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -27,6 +28,12 @@
   <xs:element name="Mail">
     <xs:complexType>
       <xs:attribute ref="smtp-server" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  
+   <xs:element name="LoggingLevel">
+    <xs:complexType>
+      <xs:attribute ref="level" use="required"/>
     </xs:complexType>
   </xs:element>
   
@@ -218,7 +225,25 @@
   
   <xs:element name="Ticker">
     <xs:complexType>
+     <xs:sequence>
+        <xs:element ref="Properties" minOccurs="0" maxOccurs="1"/>
+     </xs:sequence>
       <xs:attribute ref="class" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  
+    <xs:element name="Properties">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Property" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+   <xs:element name="Property">
+    <xs:complexType>
+      <xs:attribute ref="key" use="required"/>
+      <xs:attribute ref="value" use="required"/>
     </xs:complexType>
   </xs:element>
   
@@ -249,6 +274,9 @@
   <xs:attribute name="enabled" type="xs:string"/>
   <xs:attribute name="class" type="xs:string"/>
   <xs:attribute name="starttime" type="xs:string"/>
+  <xs:attribute name="level" type="xs:string"/>
+  <xs:attribute name="key" type="xs:string"/>
+  <xs:attribute name="value" type="xs:string"/>
   <xs:element name="Description" type="xs:string"/>
 
 </xs:schema>

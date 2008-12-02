@@ -1,6 +1,7 @@
 <TickerLingua>
   <Globals>
    <Mail smtp-server="mail.hawaii.edu"/>
+   <LoggingLevel level="FINE"/>
   </Globals>
 
   <HackystatServices>
@@ -64,7 +65,11 @@
       <HackystatProjectRef refid="projectbrowser"/>
       <HackystatUserRef refid="johnson"/>
       <HackystatUserRef refid="sz"/>
-      <Ticker class="org.hackystat.tickertape.ticker.PersonalTweetsTicker"/>
+      <Ticker class="org.hackystat.tickertape.ticker.PersonalTweetsTicker">
+        <Properties>
+          <Property key="importance" value="critical"/>
+        </Properties>
+      </Ticker>
     </Tickertape>
 
     <Tickertape id="ProjectDailySummary" intervalhours="24" enabled="false" starttime="08:00">

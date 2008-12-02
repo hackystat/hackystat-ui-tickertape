@@ -35,12 +35,12 @@ public class MultiProjectTweetsTicker implements Ticker {
    * @param logger The logger to be used to communicate status. 
    */
   public void run(Tickertape tickertape, TickerLingua tickerLingua, Logger logger) {
-    logger.info("Running MultiProjectTweetsTicker");
+    logger.info("Running MultiProjectTweetsTicker...");
     // Always do this every time. 
     this.tickertape = tickertape;
     this.logger = logger;
     this.tickerLingua = tickerLingua;
-    notify(null);  // Force a tweet the first time we run this Ticker. 
+    notify(null);  // Force a tweet just the first time we run this Ticker. 
     
     // Process each project.
     for (HackystatProject project : tickertape.getHackystatProjects()) {
@@ -71,6 +71,7 @@ public class MultiProjectTweetsTicker implements Ticker {
         }
       }
     }
+    logger.info("Finished running MultiProjectTweetsTicker.");
   }
   
   /**

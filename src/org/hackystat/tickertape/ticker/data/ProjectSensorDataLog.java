@@ -82,6 +82,8 @@ public class ProjectSensorDataLog {
     XMLGregorianCalendar currTime = Tstamp.makeTimestamp();
     SensorDataIndex index = null;
     try {
+      this.logger.fine(String.format("Updating %s/%s from %s to %s", projectName, projectOwner,
+          lastUpdate, currTime));
       index = client.getProjectSensorData(projectOwner, projectName, lastUpdate, currTime);
     }
     catch (Exception e) {
@@ -99,6 +101,7 @@ public class ProjectSensorDataLog {
       for (SensorDataRef ref : index.getSensorDataRef()) {
         try {
           SensorData data = this.client.getSensorData(ref);
+          this.logger.fine("Found: " + formatSensorData(data));
           sensordata.add(data);
         }
         catch (Exception e) {
@@ -293,7 +296,7 @@ public class ProjectSensorDataLog {
           file2NumOccurrences.put(file, 0);
         }
         int currOccurrences = file2NumOccurrences.get(file);
-        file2NumOccurrences.put(file, currOccurrences++);
+        file2NumOccurrences.put(file, currOccurrences + 1);
       }
     }
     catch (Exception e) {
@@ -301,7 +304,7 @@ public class ProjectSensorDataLog {
     }
     // Now find the one that occurred most frequently. 
     int mostOccurred = 0;
-    String mostOccurredFile = null;
+    String mostOccurredFile = "UnknownFile";
     for (Map.Entry<String, Integer> entry : file2NumOccurrences.entrySet()) {
       if (entry.getValue() > mostOccurred) {
         mostOccurred = entry.getValue();
@@ -320,6 +323,18 @@ public class ProjectSensorDataLog {
    */
   private String getFileName(String filePath) {
     int sepPos = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
-    return filePath.substring(sepPos);
+    return (sepPos >= 0) ? filePath.substring(sepPos + 1) : filePath;
+  }
+ 
+  /**
+   * Returns a string with info about the passed SensorData instance. 
+   * @param data The sensor data instance. 
+   * @return The formatted string. 
+   */
+  private String formatSensorData(SensorData data) {
+    String info = String.format("<%s %s %s %s %s>",
+        data.getTimestamp(), data.getOwner(), data.getSensorDataType(), data.getTool(), 
+        data.getResource());
+    return info;
   }
 }

@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType>
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute ref="{}refid use="required""/>
+ *       &lt;attribute ref="{}level use="required""/>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -34,34 +34,34 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
-@XmlRootElement(name = "HackystatUserRef")
-public class HackystatUserRef {
+@XmlRootElement(name = "LoggingLevel")
+public class LoggingLevel {
 
     @XmlAttribute(required = true)
-    protected String refid;
+    protected String level;
 
     /**
-     * Gets the value of the refid property.
+     * Gets the value of the level property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getRefid() {
-        return refid;
+    public String getLevel() {
+        return level;
     }
 
     /**
-     * Sets the value of the refid property.
+     * Sets the value of the level property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setRefid(String value) {
-        this.refid = value;
+    public void setLevel(String value) {
+        this.level = value;
     }
 
 }

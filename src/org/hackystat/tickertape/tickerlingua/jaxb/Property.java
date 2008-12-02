@@ -24,9 +24,8 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType>
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute ref="{}id use="required""/>
- *       &lt;attribute ref="{}serialnumber use="required""/>
- *       &lt;attribute ref="{}token use="required""/>
+ *       &lt;attribute ref="{}key use="required""/>
+ *       &lt;attribute ref="{}value use="required""/>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -36,86 +35,60 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
-@XmlRootElement(name = "Nabaztag")
-public class Nabaztag {
+@XmlRootElement(name = "Property")
+public class Property {
 
     @XmlAttribute(required = true)
-    protected String id;
+    protected String key;
     @XmlAttribute(required = true)
-    protected String serialnumber;
-    @XmlAttribute(required = true)
-    protected String token;
+    protected String value;
 
     /**
-     * Gets the value of the id property.
+     * Gets the value of the key property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     /**
-     * Sets the value of the id property.
+     * Sets the value of the key property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setId(String value) {
-        this.id = value;
+    public void setKey(String value) {
+        this.key = value;
     }
 
     /**
-     * Gets the value of the serialnumber property.
+     * Gets the value of the value property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getSerialnumber() {
-        return serialnumber;
+    public String getValue() {
+        return value;
     }
 
     /**
-     * Sets the value of the serialnumber property.
+     * Sets the value of the value property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setSerialnumber(String value) {
-        this.serialnumber = value;
-    }
-
-    /**
-     * Gets the value of the token property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getToken() {
-        return token;
-    }
-
-    /**
-     * Sets the value of the token property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setToken(String value) {
-        this.token = value;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

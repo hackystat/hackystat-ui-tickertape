@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{}FacebookAccount" maxOccurs="unbounded"/>
+ *         &lt;element ref="{}Property" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -38,41 +38,41 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "facebookAccount"
+    "property"
 })
-@XmlRootElement(name = "FacebookAccounts")
-public class FacebookAccounts {
+@XmlRootElement(name = "Properties")
+public class Properties {
 
-    @XmlElement(name = "FacebookAccount", required = true)
-    protected List<FacebookAccount> facebookAccount;
+    @XmlElement(name = "Property", required = true)
+    protected List<Property> property;
 
     /**
-     * Gets the value of the facebookAccount property.
+     * Gets the value of the property property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the facebookAccount property.
+     * This is why there is not a <CODE>set</CODE> method for the property property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getFacebookAccount().add(newItem);
+     *    getProperty().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link FacebookAccount }
+     * {@link Property }
      * 
      * 
      */
-    public List<FacebookAccount> getFacebookAccount() {
-        if (facebookAccount == null) {
-            facebookAccount = new ArrayList<FacebookAccount>();
+    public List<Property> getProperty() {
+        if (property == null) {
+            property = new ArrayList<Property>();
         }
-        return this.facebookAccount;
+        return this.property;
     }
 
 }

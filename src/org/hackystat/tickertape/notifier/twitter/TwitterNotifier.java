@@ -27,6 +27,7 @@ public class TwitterNotifier {
     this.user = user;
     this.logger = logger;
     this.twitter4j = new twitter4j.Twitter(user, password);
+    this.twitter4j.setSource("Tickertape");
 
   }
  

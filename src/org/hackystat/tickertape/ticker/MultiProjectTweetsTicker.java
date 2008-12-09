@@ -60,19 +60,70 @@ public class MultiProjectTweetsTicker implements Ticker {
           
       for (String user : log.getProjectParticipants()) {
         if (log.hasRecentSensorData(user) && !log.hasRecentTweet(user)) {
-          String mostWorkedFile = log.mostWorkedOnFile(user);
-          if (mostWorkedFile != null) {
-            String msg = 
-              String.format("%s is working on %s files, including %s, in project %s.",
-                  this.getShortName(user), log.getNumFilesWorkedOn(user),
-                  mostWorkedFile, project.getShortName());
-            notify(msg);
+          String workedOnMsg = this.getWorkedOnMsg(log, user);
+          String builtMsg = this.getBuiltMsg(log, user);
+          String testMsg = this.getTestMsg(log, user);
+          String toolMsg = log.getToolString(user);
+          StringBuffer buff = new StringBuffer();
+          buff.append(getShortName(user)).append(' ');
+          if (workedOnMsg != null) {
+            buff.append(workedOnMsg).append(", ");
           }
+          if (builtMsg != null) {
+            buff.append(builtMsg).append(", ");
+          }
+          if (testMsg != null) {
+            buff.append(testMsg).append(", ");
+          }
+          if (toolMsg != null) {
+            buff.append("using ").append(toolMsg).append(" for ").append(project.getShortName());
+          }
+          notify(buff.toString());
+          log.setTweet(user);
         }
       }
     }
     logger.info("Finished running MultiProjectTweetsTicker.");
   }
+  
+  /**
+   * Returns a string indicating the files worked on, or null if no files were worked on.
+   * @param log The ProjectSensorData log. 
+   * @param user The user of interest.
+   * @return The string indicating work, or null.
+   */
+  private String getWorkedOnMsg(ProjectSensorDataLog log, String user) {
+    String mostWorkedFile = log.mostWorkedOnFile(user);
+    return (mostWorkedFile == null) ?  null :
+        String.format("worked on %s file(s) (including %s)", log.getNumFilesWorkedOn(user),
+            mostWorkedFile);
+  }
+  
+  /**
+   * Returns a string indicating build activity.
+   * @param log The ProjectSensorDataLog.
+   * @param user The user. 
+   * @return A string indicating build activity, or null if there was none.
+   */
+  private String getBuiltMsg(ProjectSensorDataLog log, String user) {
+    int numBuilds = log.getSensorDataCount(user, "Build");
+    return (numBuilds == 0) ? null :
+      String.format("built %s time(s) (%s successful)", numBuilds, 
+          log.getBuildSuccessCount(user));
+  }
+  
+  /**
+   * Returns a string indicating build activity.
+   * @param log The ProjectSensorDataLog.
+   * @param user The user. 
+   * @return A string indicating build activity, or null if there was none.
+   */
+  private String getTestMsg(ProjectSensorDataLog log, String user) {
+    int numTests = log.getSensorDataCount(user, "UnitTest");
+    return (numTests == 0) ? null :
+      String.format("ran %s test(s) (%s passing)", numTests, log.getTestPassCount(user));
+  }
+  
   
   /**
    * Returns the shortname associated with this email, or the email if the shortname could not be 

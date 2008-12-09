@@ -7,10 +7,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.hackystat.sensorbase.client.SensorBaseClient;
 import org.hackystat.sensorbase.resource.projects.jaxb.Project;
+import org.hackystat.sensorbase.resource.sensordata.jaxb.Properties;
+import org.hackystat.sensorbase.resource.sensordata.jaxb.Property;
 import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataRef;
 import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorData;
 import org.hackystat.sensorbase.resource.sensordata.jaxb.SensorDataIndex;
@@ -25,9 +29,9 @@ public class ProjectSensorDataLog {
   
   /** Maps the time when data was retrieved the list of data of interest. */
   Map<XMLGregorianCalendar, List<SensorData>> timestamp2SensorDatas = 
-    new HashMap<XMLGregorianCalendar, List<SensorData>>();
+    new ConcurrentHashMap<XMLGregorianCalendar, List<SensorData>>();
   Map<XMLGregorianCalendar, Project> timestamp2Project =
-    new HashMap<XMLGregorianCalendar, Project>();
+    new ConcurrentHashMap<XMLGregorianCalendar, Project>();
   
   private SensorBaseClient client = null;
   private long maxLifeInMillis;
@@ -39,7 +43,7 @@ public class ProjectSensorDataLog {
   private List<SensorData> emptyDataList;
 
   private Map<String, XMLGregorianCalendar> user2lastTweet =
-    new HashMap<String, XMLGregorianCalendar>();
+    new ConcurrentHashMap<String, XMLGregorianCalendar>();
 
   /**
    * Creates a new ProjectSensorDataLog that maintains a sliding window of data.
@@ -255,8 +259,8 @@ public class ProjectSensorDataLog {
   
 
   /**
-   * Returns a count of the number of files for which DevEvent sensor data has been generated
-   * in the current sliding window of data.
+   * Returns a count of the number of distinct files for which DevEvent sensor data 
+   * has been generated in the current sliding window of data.
    * Requires one HTTP call per DevEvent. 
    * @param user The user of interest. 
    * @return The number of files associated with DevEvents during this interval.
@@ -275,6 +279,76 @@ public class ProjectSensorDataLog {
       }
     }
     return files.size();
+  }
+  
+  /**
+   * Returns a count of the number of sensor data instances of the given type.
+   * @param user The user of interest.
+   * @param sdt The sensor data type. 
+   * @return The number of instances of this sensor data type.
+   */
+  public int getSensorDataCount(String user, String sdt) {
+    return getSensorData(user, sdt).size();
+  }
+  
+  /**
+   * Returns the number of successful builds.
+   * @param user The user.
+   * @return The numnber of builds that were successful.
+   */
+  public int getBuildSuccessCount(String user) {
+    List<SensorData> datas = getSensorData(user, "Build");
+    int success = 0;
+    for (SensorData data : datas) {
+      String result = this.getPropertyValue(data, "Result");
+      if ("Success".equals(result)) {
+        success++;
+      }
+    }
+    return success;
+  }
+  
+  /**
+   * Returns the number of passing tests. 
+   * @param user The user.
+   * @return The number of test invocations that passed.
+   */
+  public int getTestPassCount(String user) {
+    List<SensorData> datas = getSensorData(user, "UnitTest");
+    int success = 0;
+    for (SensorData data : datas) {
+      String result = this.getPropertyValue(data, "Result");
+      if ("pass".equalsIgnoreCase(result)) {
+        success++;
+      }
+    }
+    return success;
+  }
+  
+  /**
+   * Returns a string containing a list of comma separated tool names, or null if no tools.
+   * @param user The user of interest. 
+   * @return The tool list, or null.
+   */
+  public String getToolString(String user) {
+    Set<String> tools = new HashSet<String>();
+    for (Map.Entry<XMLGregorianCalendar, List<SensorData>> entry : 
+      this.timestamp2SensorDatas.entrySet()) {
+      for (SensorData data : entry.getValue()) {
+        if (user.equals(data.getOwner())) {
+          tools.add(data.getTool());
+        }
+      }
+    }
+    if (tools.size() == 0) {
+      return null;
+    }
+    StringBuffer buff = new StringBuffer();
+    for (String tool : tools) {
+      buff.append(tool).append(", ");
+    }
+    // Return the string without the final ','
+    return buff.toString().substring(0, buff.toString().lastIndexOf(','));
   }
   
   /**
@@ -332,9 +406,33 @@ public class ProjectSensorDataLog {
    * @return The formatted string. 
    */
   private String formatSensorData(SensorData data) {
+    String shortResource = (data.getResource().length() < 20) ?
+      data.getResource() :
+        "..." + data.getResource().substring(data.getResource().length() - 20);
     String info = String.format("<%s %s %s %s %s>",
         data.getTimestamp(), data.getOwner(), data.getSensorDataType(), data.getTool(), 
-        data.getResource());
+        shortResource);
     return info;
+  }
+  
+  /**
+   * Gets the value for the given property name from the <code>Properties</code> object
+   * contained in the given sensor data instance.
+   * 
+   * @param data The sensor data instance to get the property from.
+   * @param propertyName The name of the property to get the value for.
+   * @return Returns the value of the property or null if no matching property was found.
+   */
+  private String getPropertyValue(SensorData data, String propertyName) {
+    Properties properties = data.getProperties();
+    if (properties != null) {
+      List<Property> propertyList = properties.getProperty();
+      for (Property property : propertyList) {
+        if (property.getKey().equals(propertyName)) {
+          return property.getValue();
+        }
+      }
+    }
+    return null;
   }
 }

@@ -129,10 +129,12 @@ public class ProjectSensorDataLog {
     XMLGregorianCalendar maxLifeTimestamp = this.getMaxLifeTimestamp();
     for (XMLGregorianCalendar tstamp : this.timestamp2SensorDatas.keySet()) {
       if (Tstamp.lessThan(tstamp, maxLifeTimestamp)) {
+        this.logger.fine("Removing data for: " + tstamp);
         this.timestamp2SensorDatas.remove(tstamp);
         this.timestamp2Project.remove(tstamp);
       }
     }
+    this.logger.fine(this.toString());
   }
   
   /**
@@ -340,7 +342,7 @@ public class ProjectSensorDataLog {
         }
       }
     }
-    if (tools.size() == 0) {
+    if (tools.size() == 0) { //NOPMD Java 5 compatibility.
       return null;
     }
     StringBuffer buff = new StringBuffer();
@@ -434,5 +436,30 @@ public class ProjectSensorDataLog {
       }
     }
     return null;
+  }
+  
+  /**
+   * Provides a formatted string indicating the contents of the this log for debugging purposes.
+   * @return The log as a string.
+   */
+  @Override
+  public String toString() {
+    StringBuffer buff = new StringBuffer(35);
+    buff.append("\n[ProjectSensorDataLog for: ").append(this.projectName).append('\n');
+    for (Map.Entry<XMLGregorianCalendar, List<SensorData>> entry : 
+      this.timestamp2SensorDatas.entrySet()) {
+      XMLGregorianCalendar tstamp = entry.getKey();
+      HashSet<String> owners = new HashSet<String>();
+      for (SensorData data : entry.getValue()) {
+        owners.add(data.getOwner());
+        }
+      buff.append(tstamp);
+      for (String owner : owners) {
+        buff.append(' ').append(owner);
+      }
+      buff.append('\n');
+    }
+    buff.append(']');
+    return buff.toString();
   }
 }

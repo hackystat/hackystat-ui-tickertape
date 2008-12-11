@@ -15,9 +15,10 @@
       <fileset dir="${basedir}/build/classes"/>
     </copy>
   
-    <!-- Build telemetry.jar --> 
+    <!-- Build tickertape.jar --> 
     <unjar src="${env.HACKYSTAT_SENSORBASE_HOME}/sensorbaseclient.jar" dest="${tmp.dir}"/>
     <unjar src="${env.HACKYSTAT_DAILYPROJECTDATA_HOME}/dailyprojectdata.lib.jar" dest="${tmp.dir}"/>
+    <unjar src="${env.HACKYSTAT_TELEMETRY_HOME}/telemetry.jar" dest="${tmp.dir}"/>
     <unjar src="${env.TWITTER4J_HOME}/twitter4j-1.1.0.jar" dest="${tmp.dir}"/>
  
     <jar destfile="${basedir}/tickertape.jar" basedir="${tmp.dir}">

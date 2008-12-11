@@ -26,6 +26,9 @@ public class MultiProjectTweetsTicker implements Ticker {
   private TickerLingua tickerLingua;
   private Map<String, ProjectSensorDataLog> project2log = 
     new HashMap<String, ProjectSensorDataLog>();
+  
+  /** The string used as the key for the TimeBetweenTweets property. */
+  public static final String TIME_BETWEEN_TWEETS_KEY = "TimeBetweenTweets";
 
 
   /**
@@ -44,16 +47,16 @@ public class MultiProjectTweetsTicker implements Ticker {
     
     // Process each project.
     for (HackystatProject project : tickertape.getHackystatProjects()) {
-      this.logger.info("Checking status of project " + project.getName());
+      // Add newlines to help readability.
+      this.logger.info("\n\nChecking status of project " + project.getName());
       
       // Find or create the ProjectSensorDataLog.
       String projectName = project.getName();
       String projectOwner = project.getHackystatOwner().getHackystatUserAccount();
       HackystatUser authUser = project.getHackystatAuthUser();
       SensorBaseClient client = authUser.getSensorBaseClient();
-      double maxLife = this.tickertape.getIntervalHours();
-      ProjectSensorDataLog log = this.getProjectSensorDataLog(client, maxLife, projectOwner, 
-          projectName, logger);
+      ProjectSensorDataLog log = this.getProjectSensorDataLog(client, this.getMaxLife(), 
+          projectOwner, projectName, logger);
       
       // Now get any new data.
       log.update();
@@ -173,6 +176,26 @@ public class MultiProjectTweetsTicker implements Ticker {
     }
     if (message != null) {
       this.twitterNotifier.notify(message);
+    }
+  }
+  
+  /**
+   * Gets the maxLife by looking for the TimeBetweenTweets ticker property and converting it to
+   * a double.  Returns 0.5 (30 minutes) if the property is not found or could not be parsed.
+   * @return The maxLife. 
+   */
+  private double getMaxLife() {
+    double defaultMaxLife = 0.5;
+    String timeBetweenTweets = this.tickertape.getTickerProperties().get(TIME_BETWEEN_TWEETS_KEY);
+    if (timeBetweenTweets == null) {
+      return defaultMaxLife;
+    }
+    try {
+      return Double.parseDouble(timeBetweenTweets);
+    }
+    catch (Exception e) {
+      this.logger.warning("Error parsing TimeBetweenTweets: " + timeBetweenTweets);
+      return defaultMaxLife;
     }
   }
 }

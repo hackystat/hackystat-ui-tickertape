@@ -1,8 +1,13 @@
 package org.hackystat.tickertape.tickerlingua;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.hackystat.tickertape.ticker.Ticker;
+import org.hackystat.tickertape.tickerlingua.jaxb.Properties;
+import org.hackystat.tickertape.tickerlingua.jaxb.Property;
 
 /**
  * Represents a Tickertape, which is a notification. 
@@ -18,6 +23,7 @@ public class Tickertape {
   private List<HackystatProject> projects;
   private List<NotificationService> services;
   private Ticker ticker;
+  private Map<String, String> properties = new HashMap<String, String>();
   
   /**
    * Creates and returns a new Tickertape instance, or throws a TickerLinguaException if the 
@@ -30,11 +36,13 @@ public class Tickertape {
    * @param projects A non-empty list of HackystatProject instances. 
    * @param services A possibly empty list of notification services. (One might use email). 
    * @param tickerClass The ticker class instance. 
+   * @param tickerProperties A possibly empty Properties instance. 
    * @throws TickerLinguaException If there is not at least one project and notification service. 
    */
   public Tickertape(String id, double intervalHours, boolean enabled, String starttime, 
       String description, List<HackystatProject> projects, List<NotificationService> services, 
-      Class<? extends Ticker> tickerClass) throws TickerLinguaException {
+      Class<? extends Ticker> tickerClass, Properties tickerProperties) 
+  throws TickerLinguaException {
     this.id = id;
     this.intervalHours = intervalHours;
     this.enabled = enabled;
@@ -52,6 +60,11 @@ public class Tickertape {
     catch (Exception e) {
       throw new RuntimeException("Ticker could not be instantiated. Shouldn't ever happen!", e);
     }
+    // Create the properties map. 
+    for (Property property : tickerProperties.getProperty()) {
+      properties.put(property.getKey(), property.getValue());
+    }
+    
   }
   
   /**
@@ -116,6 +129,13 @@ public class Tickertape {
    */
   public Ticker getTicker() {
     return this.ticker;
-    
+  }
+  
+  /**
+   * Return the (possibly empty) properties associated with this ticker.
+   * @return The ticker properties. 
+   */
+  public Map<String, String> getTickerProperties() {
+    return this.properties;
   }
 }

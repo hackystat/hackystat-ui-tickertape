@@ -16,6 +16,7 @@ import org.hackystat.dailyprojectdata.client.DailyProjectDataClient;
 import org.hackystat.sensorbase.client.SensorBaseClient;
 import org.hackystat.telemetry.service.client.TelemetryClient;
 import org.hackystat.tickertape.ticker.Ticker;
+import org.hackystat.tickertape.tickerlingua.jaxb.Properties;
 import org.hackystat.utilities.logger.HackystatLogger;
 
 /**
@@ -445,8 +446,14 @@ public class TickerLingua {
         throw new TickerLinguaException("Problem defining ticker class. " + className, e);
       }
       
+      // Pass in a ticker properties instance.  
+      Properties properties = new Properties();
+      if ((jaxb.getTicker() != null) && (jaxb.getTicker().getProperties() != null)) {
+        properties = jaxb.getTicker().getProperties();
+      }
+      
       Tickertape tickertape = new Tickertape(id, intervalHours, enabled, jaxb.getStarttime(),
-          jaxb.getDescription(), projects, services, tickerClass);
+          jaxb.getDescription(), projects, services, tickerClass, properties);
       this.tickertapes.put(id, tickertape);
     }
   }

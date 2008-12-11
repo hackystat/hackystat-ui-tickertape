@@ -1,22 +1,80 @@
-<Tickertape>
-  <WakeupInterval>10</WakeupInterval>
-  <Project>
-    <Hackystat>
-      <SensorbaseHost>http://dasha.ics.hawaii.edu:9876/sensorbase</SensorbaseHost>
-      <DailyProjectDataHost>http://dasha.ics.hawaii.edu:9877/dailyprojectdata</DailyProjectDataHost>
-      <User>johnson@hawaii.edu</User>
-      <Password>mypassword</Password>
-      <ProjectName>hackystat-ui-tickertape</ProjectName>
-      <ProjectOwner>johnson@hawaii.edu</ProjectOwner>
-    </Hackystat>
-    <Nabaztag>
-      <SerialNumber>0013D3844E5A</SerialNumber>
-      <Token>000000000</Token>
-    </Nabaztag>
-    <Twitter>
-      <User>hacky_ticker</User>
-      <Password>password</Password>
-    </Twitter>
-  </Project>
-</Tickertape>
+<TickerLingua>
+  <Globals>
+   <Mail smtp-server="mail.hawaii.edu"/>
+   <LoggingLevel level="FINE"/>
+  </Globals>
+
+  <HackystatServices>
+    <HackystatService id="dasha" sensorbase="http://dasha.ics.hawaii.edu:9876/sensorbase" dailyprojectdata="http://dasha.ics.hawaii.edu:9877/dailyprojectdata" telemetry="http://dasha.ics.hawaii.edu:9878/telemetry" projectbrowser="http://dasha.ics.hawaii.edu:9879/projectbrowser"/>
+  </HackystatServices>
+
+
+  <HackystatUsers>
+    <HackystatUser id="johnson@hawaii.edu" fullname="Philip Johnson" shortname="Philip">
+      <EmailAccount account="johnson@hawaii.edu"/>
+      <HackystatAccount hackystatservice-refid="dasha" user="johnson@hawaii.edu" password=""/>
+    </HackystatUser>
+
+   <HackystatUser id="sz@hawaii.edu" fullname="Shoaxuan Zhang" shortname="Shoaxuan">
+      <EmailAccount account="sz@hawaii.edu"/>
+      <HackystatAccount hackystatservice-refid="dasha" user="sz@hawaii.edu"/>
+    </HackystatUser>
+
+   <HackystatUser id="senin@hawaii.edu" fullname="Pavel Senin" shortname="Pavel">
+      <EmailAccount account="senin@hawaii.edu"/>
+      <HackystatAccount hackystatservice-refid="dasha" user="senin@hawaii.edu"/>
+    </HackystatUser>
+
+  </HackystatUsers>
+
+  <HackystatProjects>
+
+    <HackystatProject id="tickertape" name="hackystat-ui-tickertape" shortname="Tickertape" 
+         hackystatservice-refid="dasha" projectowner-refid="johnson@hawaii.edu" authuser-refid="johnson@hawaii.edu"
+         mailinglist="hackystat-dev@googlegroups.com"/>
+
+    <HackystatProject id="projectbrowser" name="hackystat-ui-wicket" shortname="ProjectBrowser" 
+         hackystatservice-refid="dasha" projectowner-refid="randycox@hawaii.edu" authuser-refid="johnson@hawaii.edu"
+         mailinglist="hackystat-dev@googlegroups.com"/>
+
+    <HackystatProject id="trajectory" name="hackystat-ui-trajectory" shortname="Trajectory" 
+         hackystatservice-refid="dasha" projectowner-refid="senin@hawaii.edu" authuser-refid="johnson@hawaii.edu"
+         mailinglist="hackystat-dev@googlegroups.com"/>
+
+  </HackystatProjects>
+
+  <Nabaztags>
+    <Nabaztag id="csdl-nabaztag" serialnumber="0013D3844E5A" token=""/>
+  </Nabaztags>
+
+  <TwitterAccounts>
+    <TwitterAccount id="ics413duedates" user="ics413duedates" password=""/>
+    <TwitterAccount id="hackystat" user="hackystat" password=""/>
+  </TwitterAccounts>
+
+  <Tickertapes>
+
+    <Tickertape id="HackystatTweets" intervalhours="0.15" enabled="true">
+      <Description>
+        Generates a tweet to the hackystat twitter account regarding activity on Hackystat.
+        The wakeup interval is about every 10 minutes.
+        The time between tweets (assuming nothing "important" has happened) is 60 minutes. 
+      </Description>
+      <HackystatProjectRef refid="tickertape"/>
+      <HackystatProjectRef refid="trajectory"/>
+      <HackystatProjectRef refid="projectbrowser"/>
+      <TwitterAccountRef refid="hackystat"/>
+      <Ticker class="org.hackystat.tickertape.ticker.MultiProjectTweetsTicker">
+        <Properties>
+          <Property key="TimeBetweenTweets" value="1.0"/>
+        </Properties>
+      </Ticker>
+    </Tickertape>
+
+  </Tickertapes>
+</TickerLingua>
+
+
+
+
 

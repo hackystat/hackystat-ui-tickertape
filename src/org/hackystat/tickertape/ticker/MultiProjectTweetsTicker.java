@@ -62,6 +62,11 @@ public class MultiProjectTweetsTicker implements Ticker {
       log.update();
           
       for (String user : log.getProjectParticipants()) {
+        this.logger.fine(String.format("User %s %s sensor data and %s a recent tweet.",
+            user, 
+            (log.hasRecentSensorData(user) ? "has" : "does not have"), 
+            (log.hasRecentTweet(user) ? "has" : "does not have")
+            ));
         if (log.hasRecentSensorData(user) && !log.hasRecentTweet(user)) {
           String workedOnMsg = this.getWorkedOnMsg(log, user);
           String builtMsg = this.getBuiltMsg(log, user);

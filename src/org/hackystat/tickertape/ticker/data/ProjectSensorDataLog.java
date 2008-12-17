@@ -177,7 +177,10 @@ public class ProjectSensorDataLog {
    */
   public boolean hasRecentTweet(String user) {
     if (this.user2lastTweet.containsKey(user)) {
-      return !Tstamp.lessThan(this.getMaxLifeTimestamp(), this.user2lastTweet.get(user));
+      XMLGregorianCalendar maxLife = this.getMaxLifeTimestamp();
+      XMLGregorianCalendar lastTweet = this.user2lastTweet.get(user);
+      // If the last tweet is older than maxLife, then return true.
+      return Tstamp.lessThan(maxLife, lastTweet); 
     }
     return false;
   }
@@ -543,7 +546,6 @@ public class ProjectSensorDataLog {
    * Provides a formatted string indicating the contents of the this log for debugging purposes.
    * @return The log as a string.
    */
-  @SuppressWarnings("unchecked")
   @Override
   public String toString() {
     StringBuffer buff = new StringBuffer(40);

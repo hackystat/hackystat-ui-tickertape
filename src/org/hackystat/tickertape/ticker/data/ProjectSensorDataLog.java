@@ -352,6 +352,20 @@ public class ProjectSensorDataLog {
     return false; 
   }
   
+  /**
+   * Returns true if there is any data in our sliding window.
+   * @return True if data exists.
+   */
+  public boolean hasSensorData() {
+    for (Map.Entry<XMLGregorianCalendar, List<SensorData>> entry : 
+      this.timestamp2SensorDatas.entrySet()) {
+      if (!entry.getValue().isEmpty()) {
+        return true;
+      }
+    }
+    return false; 
+  }
+  
 
   /**
    * Returns a count of the number of distinct files for which DevEvent sensor data 
@@ -572,5 +586,13 @@ public class ProjectSensorDataLog {
     }
     buff.append(']');
     return buff.toString();
+  }
+
+  /**
+   * Returns the name of the project monitored in this log.
+   * @return This project name.
+   */
+  public String getProjectName() {
+    return this.projectName;
   }
 }

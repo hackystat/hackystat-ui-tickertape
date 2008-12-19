@@ -512,4 +512,18 @@ public class TickerLingua {
     return this.users.values();
   }
   
+  /**
+   * Returns the full name associated with the email, or null if not found. 
+   * @param email The email. 
+   * @return The full name, or null if not found.
+   */
+  public String findFullName(String email) {
+    for (HackystatUser user : this.users.values()) {
+      if (user.getEmailAccount().equalsIgnoreCase(email)) {
+        return user.getFullName();
+      }
+    }
+    return null;
+  }
+  
 }

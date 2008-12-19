@@ -1,8 +1,6 @@
 package org.hackystat.tickertape.ticker;
 
 import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.hackystat.sensorbase.client.SensorBaseClient;
@@ -12,10 +10,13 @@ import org.hackystat.tickertape.tickerlingua.NotificationService;
 import org.hackystat.tickertape.tickerlingua.TickerLingua;
 import org.hackystat.tickertape.tickerlingua.Tickertape;
 import org.hackystat.tickertape.tickerlingua.HackystatProject;
+import org.hackystat.tickertape.ticker.data.MultiProjectSensorDataLog;
 import org.hackystat.tickertape.ticker.data.ProjectSensorDataLog;
 
 /**
- * A Ticker. 
+ * Provides a Ticker that can monitor multiple Hackystat projects and send tweets to a single 
+ * Twitter account occasionally to summarize activity.  There is one tweet generated per user
+ * and per project. 
  * @author Philip Johnson
  */
 public class MultiProjectTweetsTicker implements Ticker {
@@ -24,8 +25,7 @@ public class MultiProjectTweetsTicker implements Ticker {
   private Tickertape tickertape;
   private Logger logger;
   private TickerLingua tickerLingua;
-  private Map<String, ProjectSensorDataLog> project2log = 
-    new HashMap<String, ProjectSensorDataLog>();
+  private MultiProjectSensorDataLog multiLog = new MultiProjectSensorDataLog();
   
   /** The string used as the key for the TimeBetweenTweets property. */
   public static final String TIME_BETWEEN_TWEETS_KEY = "TimeBetweenTweets";
@@ -39,7 +39,6 @@ public class MultiProjectTweetsTicker implements Ticker {
    */
   public void run(Tickertape tickertape, TickerLingua tickerLingua, Logger logger) {
     logger.info("Running MultiProjectTweetsTicker...");
-    // Always do this every time. 
     this.tickertape = tickertape;
     this.logger = logger;
     this.tickerLingua = tickerLingua;
@@ -47,7 +46,6 @@ public class MultiProjectTweetsTicker implements Ticker {
     
     // Process each project.
     for (HackystatProject project : tickertape.getHackystatProjects()) {
-      // Add newlines to help readability.
       this.logger.info("\n\nChecking status of project " + project.getName());
       
       // Find or create the ProjectSensorDataLog.
@@ -55,18 +53,13 @@ public class MultiProjectTweetsTicker implements Ticker {
       String projectOwner = project.getHackystatOwner().getHackystatUserAccount();
       HackystatUser authUser = project.getHackystatAuthUser();
       SensorBaseClient client = authUser.getSensorBaseClient();
-      ProjectSensorDataLog log = this.getProjectSensorDataLog(client, this.getMaxLife(), 
-          projectOwner, projectName, logger);
+      ProjectSensorDataLog log = multiLog.get(client, this.getMaxLife(), projectOwner, projectName, 
+          logger);
       
       // Now get any new data.
       log.update();
           
       for (String user : log.getProjectParticipants()) {
-        this.logger.fine(String.format("User %s %s sensor data and %s a recent tweet.",
-            user, 
-            (log.hasRecentSensorData(user) ? "has" : "does not have"), 
-            (log.hasRecentTweet(user) ? "has" : "does not have")
-            ));
         if (log.hasRecentSensorData(user) && !log.hasRecentTweet(user)) {
           String workedOnMsg = this.getWorkedOnMsg(log, user);
           String builtMsg = this.getBuiltMsg(log, user);
@@ -146,26 +139,6 @@ public class MultiProjectTweetsTicker implements Ticker {
       }
     }
     return email;
-  }
-  
-  /**
-   * Return the ProjectSensorDataLog for this project, creating it if it does not yet exist. 
-   * @param client The SensorBaseClient.
-   * @param maxLife The maxLife for sensor data entries in this log.
-   * @param projectOwner The owner.
-   * @param projectName The name.
-   * @param logger The logger to be used if things go wrong. 
-   * @return The ProjectSensorDataLog.
-   */
-  private ProjectSensorDataLog getProjectSensorDataLog(SensorBaseClient client, double maxLife,
-      String projectOwner, String projectName, Logger logger) {
-    // If we can't find it, create it.
-    if (!this.project2log.containsKey(projectName)) {
-      ProjectSensorDataLog log = new ProjectSensorDataLog(client, maxLife, projectOwner,
-          projectName, logger);
-      this.project2log.put(projectName, log);
-    }
-    return this.project2log.get(projectName);    
   }
   
 

@@ -64,6 +64,7 @@ public class MultiProjectTweetsTicker implements Ticker {
           String workedOnMsg = this.getWorkedOnMsg(log, user);
           String builtMsg = this.getBuiltMsg(log, user);
           String testMsg = this.getTestMsg(log, user);
+          String commitMsg = this.getCommitMsg(log, user);
           String toolMsg = log.getToolString(user);
           StringBuffer buff = new StringBuffer();
           buff.append(getShortName(user)).append(' ');
@@ -75,6 +76,9 @@ public class MultiProjectTweetsTicker implements Ticker {
           }
           if (testMsg != null) {
             buff.append(testMsg).append(", ");
+          }
+          if (commitMsg != null) {
+            buff.append(commitMsg).append(", ");
           }
           if (toolMsg != null) {
             buff.append("using ").append(toolMsg).append(" for ").append(project.getShortName());
@@ -111,6 +115,19 @@ public class MultiProjectTweetsTicker implements Ticker {
     return (numBuilds == 0) ? null :
       String.format("built %s time(s) (%s successful)", numBuilds, 
           log.getBuildSuccessCount(user));
+  }
+  
+  
+  /**
+   * Returns a string indicating commit activity.
+   * @param log The ProjectSensorDataLog.
+   * @param user The user. 
+   * @return A string indicating commit activity, or null if there was none.
+   */
+  private String getCommitMsg(ProjectSensorDataLog log, String user) {
+    int numCommits = log.getSensorDataCount(user, "Commit");
+    return (numCommits == 0) ? null :
+      String.format("committed %s file(s)", numCommits); 
   }
   
   /**

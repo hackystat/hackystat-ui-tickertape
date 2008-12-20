@@ -37,12 +37,14 @@ public class NabaztagNotifier {
 
   /**
    * Contacts the Nabaztag and sends the passed string. 
+   * All spaces are replaced by '+'.
+   * Also, all '@' are replaced by '+at+'.
    * @param message The message to be sent to the Nabaztag. 
    */
   public void notify(String message) {
-    logger.info("Notifying Nabaztag: " + message);
-    String url = String.format("%s?sn=%s&token=%s&tts=%s", host, serialNumber, token, 
-        message.trim().replace(" ", "+").replace("@", "+at+"));
+    String newMessage = message.replace(' ', '+').replace("@", "+at+");
+    logger.info("Notifying Nabaztag: " + newMessage);
+    String url = String.format("%s?sn=%s&token=%s&tts=%s", host, serialNumber, token, newMessage); 
     post(url);
   }
   

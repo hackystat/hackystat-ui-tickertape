@@ -519,7 +519,7 @@ public class TickerLingua {
    */
   public String findFullName(String email) {
     for (HackystatUser user : this.users.values()) {
-      if (user.getEmailAccount().equalsIgnoreCase(email)) {
+      if ((user.getEmailAccount() != null) && user.getEmailAccount().equalsIgnoreCase(email)) {
         return user.getFullName();
       }
     }

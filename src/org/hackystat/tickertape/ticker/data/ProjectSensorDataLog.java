@@ -70,8 +70,7 @@ public class ProjectSensorDataLog {
    */
   private XMLGregorianCalendar getMaxLifeTimestamp() {
     XMLGregorianCalendar currTime = Tstamp.makeTimestamp();
-    XMLGregorianCalendar max = Tstamp.incrementMilliseconds(currTime, -1 * this.maxLifeInMillis);
-    return max;
+    return Tstamp.incrementMilliseconds(currTime, -1 * this.maxLifeInMillis);
   }
   
   /**

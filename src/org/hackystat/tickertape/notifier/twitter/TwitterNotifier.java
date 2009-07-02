@@ -38,7 +38,7 @@ public class TwitterNotifier {
   public void notify(String message) {
     this.logger.info(String.format("Notifying Twitter user %s: %s", this.user, message));
     try {
-      twitter4j.update(message);
+      twitter4j.updateStatus(message);
     }
     catch (TwitterException e) {
       this.logger.warning("Tweet failed: " + StackTrace.toString(e));

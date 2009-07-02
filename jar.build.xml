@@ -1,36 +1,49 @@
-<project name="jar" default="jar">
+<project name="jar" default="publish" xmlns:ivy="antlib:org.apache.ivy.ant">
   <description>
   Provides the target for building a jar file of this service.
   </description>
 
-  <import file="build.xml"/>
+  <import file="build.xml" />
   <property name="tmp.dir" location="${basedir}/tmp" />
   <property name="tmp.lib.dir" location="${basedir}/tmp-lib" />
- 
-  <target name="jar" depends="compile" 
-    description="Create tickertape.jar">
-    <!-- Define the directories and distribution name -->
+  <property name="build.jar.dir" location="${build.dir}/jar" />
+  <delete dir="${build.jar.dir}" quiet="true" />
+
+  <target name="jar" depends="compile" description="Create tickertape.jar">
+    <mkdir dir="${build.jar.dir}" />
     <mkdir dir="${tmp.dir}" />
     <copy todir="${tmp.dir}">
-      <fileset dir="${basedir}/build/classes"/>
+      <fileset dir="${basedir}/build/classes" />
     </copy>
-  
-    <!-- Build tickertape.jar --> 
-    <unjar src="${env.HACKYSTAT_SENSORBASE_HOME}/sensorbaseclient.jar" dest="${tmp.dir}"/>
-    <unjar src="${env.HACKYSTAT_DAILYPROJECTDATA_HOME}/dailyprojectdata.lib.jar" dest="${tmp.dir}"/>
-    <unjar src="${env.HACKYSTAT_TELEMETRY_HOME}/telemetry.jar" dest="${tmp.dir}"/>
-    <unjar src="${env.TWITTER4J_HOME}/twitter4j-1.1.0.jar" dest="${tmp.dir}"/>
- 
-    <jar destfile="${basedir}/tickertape.jar" basedir="${tmp.dir}">
+
+    <!-- Build tickertape.jar -->
+    <unjar src="${lib.dir}/hackystat-sensorbase-uh/sensorbaseclient.jar" dest="${tmp.dir}" />
+    <unjar src="${lib.dir}/hackystat-analysis-dailyprojectdata/dailyprojectdata.lib.jar" dest="${tmp.dir}" />
+    <unjar src="${lib.dir}/hackystat-analysis-telemetry/telemetry.lib.jar" dest="${tmp.dir}" />
+    <unjar src="${lib.dir}/twitter4j/twitter4j.jar" dest="${tmp.dir}" />
+
+    <jar destfile="${build.jar.dir}/tickertape.jar" basedir="${tmp.dir}">
       <manifest>
-        <attribute name="Main-Class" value="org.hackystat.tickertape.server.Server"/>
-        <attribute name="Implementation-Title" value="Hackystat Tickertape"/>
-        <attribute name="Implementation-Version" value="${version}"/>
-        <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii"/>
+        <attribute name="Main-Class" value="org.hackystat.tickertape.server.Server" />
+        <attribute name="Implementation-Title" value="Hackystat Tickertape" />
+        <attribute name="Implementation-Version" value="${version}" />
+        <attribute name="Implementation-Vendor" value="Collaborative Software Development Laboratory, University of Hawaii" />
       </manifest>
     </jar>
     <delete dir="${tmp.dir}" />
-  </target> 
- 
+  </target>
+
+  <target name="publish" depends="jar" description="Publish this project in the local ivy repository">
+    <ivy:resolve />
+    <tstamp>
+      <format property="publication-revision" pattern="yyyy.MM.dd.HH.mm.ss" />
+    </tstamp>
+    <ivy:publish artifactspattern="${build.jar.dir}/[artifact].[ext]" resolver="local-repository" pubrevision="${publication-revision}" update="true" />
+  </target>
+
+  <target name="publish-all" description="Publish all dependent projects, then this one.">
+    <ant antfile="../hackystat-analysis-telemetry/jar.build.xml" target="publish-all" inheritAll="false" />
+    <antcall target="publish" />
+  </target>
 </project>
 

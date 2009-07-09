@@ -2,6 +2,8 @@
   <info organisation="org.hackystat" module="hackystat-ui-tickertape"/>
   <publications>
     <artifact name="tickertape" />
+    <artifact name="hackystat-ui-tickertape-javadoc" type="javadoc" ext="zip"/>
+    <artifact name="hackystat-ui-tickertape-source" type="source" ext="zip"/>
   </publications>
   <dependencies>
     <dependency org="org.junit" name="junit" rev="${junit.version}" />

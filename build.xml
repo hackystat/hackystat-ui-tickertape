@@ -45,7 +45,7 @@
     <copy todir="${build.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.xml" />
     </copy>
-  </target
+  </target>
 
   <target name="run" depends="compile" description="Compiles the sensorbase and starts it up.">
     <java classname="org.hackystat.tickertape.server.Server" fork="yes">
